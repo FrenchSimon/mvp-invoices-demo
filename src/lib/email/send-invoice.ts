@@ -71,7 +71,7 @@ export async function sendInvoiceEmail(data: FullInvoice, to: string): Promise<S
     subject,
     text,
     html,
-    attachments: [{ filename: invoiceFileName(data.invoice.number), content: pdf }],
+    attachments: [{ filename: invoiceFileName(data.invoice.number), content: pdf, contentType: "application/pdf" }],
   });
   if (error) {
     console.error("[email facture] refus de Resend :", error.name, error.message);
