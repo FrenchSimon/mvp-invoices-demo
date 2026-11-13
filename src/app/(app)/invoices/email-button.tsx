@@ -21,12 +21,15 @@ export function EmailButton({
   clientId,
   label,
   inForm = false,
+  initialMessage,
 }: {
   id: string;
   to: string;
   clientId: string;
   label: string;
   inForm?: boolean;
+  // Message déjà acquis en arrivant sur la page (brouillon tout juste envoyé).
+  initialMessage?: string;
 }) {
   const [confirming, setConfirming] = useState(false);
   // Après une tentative (réussie ou non), on revient au bouton de départ :
@@ -35,7 +38,7 @@ export function EmailButton({
     const result = await emailInvoice(prev, formData);
     setConfirming(false);
     return result;
-  }, {});
+  }, initialMessage ? { message: initialMessage } : {});
 
   if (!to) {
     return (

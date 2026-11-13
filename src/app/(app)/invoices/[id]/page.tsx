@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LoadingLine, SecondaryLink, Sheet } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
-import { FormMessage } from "@/components/ui/field";
 import { formatDate, formatDay, formatMoney, formatNumber } from "@/lib/format";
 import { lineTotalCents } from "@/lib/invoices/totals";
 import { requireUser } from "@/lib/supabase/user";
@@ -66,10 +65,17 @@ async function InvoiceDetail({ params, searchParams }: Pick<PageProps<"/invoices
   return (
     <div className="flex flex-wrap items-start gap-10">
       <Sheet className="min-w-0 flex-[999_1_600px]">
-        <SentInvoice title={title} badge={badge} invoice={invoice} summary={summary} items={items} client={client} />
+        <SentInvoice
+          title={title}
+          badge={badge}
+          invoice={invoice}
+          summary={summary}
+          items={items}
+          client={client}
+          justEmailed={justEmailed}
+        />
       </Sheet>
       <aside className="flex min-w-0 flex-[1_1_220px] flex-col gap-5">
-        {justEmailed && client.email ? <FormMessage message={`Facture envoyée à ${client.email}.`} /> : null}
         <StatusActions id={invoice.id} status={invoice.status} />
         <StatusHistory summary={summary} />
       </aside>
@@ -85,6 +91,7 @@ function SentInvoice({
   summary,
   items,
   client,
+  justEmailed,
 }: {
   title: string;
   badge: ReactNode;
@@ -92,6 +99,7 @@ function SentInvoice({
   summary: InvoiceSummary;
   items: InvoiceItem[];
   client: Client;
+  justEmailed: boolean;
 }) {
   return (
     <>
@@ -108,7 +116,13 @@ function SentInvoice({
             Télécharger le PDF
           </SecondaryLink>
           {invoice.status === "sent" ? (
-            <EmailButton id={invoice.id} to={client.email.trim()} clientId={client.id} label="Renvoyer par email" />
+            <EmailButton
+              id={invoice.id}
+              to={client.email.trim()}
+              clientId={client.id}
+              label="Renvoyer par email"
+              initialMessage={justEmailed ? `Facture envoyée à ${client.email.trim()}.` : undefined}
+            />
           ) : null}
         </div>
       </div>
