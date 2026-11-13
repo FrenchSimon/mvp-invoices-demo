@@ -195,5 +195,19 @@ await db.exec(`update public.profiles set role = 'admin' where id = '${B}'`);
 const adm2 = await as(B, async () => (await db.query(`select public.is_admin() a`)).rows[0].a);
 ok(adm1 === false && adm2 === true, "is_admin() : faux pour un freelance, vrai pour l'admin");
 
+// Liste des inscrits (admin)
+const listA = await as(A, () => fails(`select * from public.admin_list_users()`));
+ok(listA !== null && listA.includes("NOT_ADMIN"), "admin_list_users() refusée à un freelance");
+await db.exec(`set role anon;`);
+const listAnon = await fails(`select * from public.admin_list_users()`);
+await db.exec(`reset role;`);
+ok(listAnon !== null, "admin_list_users() refusée sans connexion");
+const listB = await as(B, async () => (await db.query(`select * from public.admin_list_users()`)).rows);
+const rowA = listB.find((r) => r.id === A);
+const totalA = await db.query(`select count(*)::int n from public.invoices where user_id = '${A}'`);
+ok(listB.length === 2 && rowA?.email === "a@test.fr" && rowA?.plan === "pro"
+  && Number(rowA?.invoice_count) === totalA.rows[0].n,
+  `admin_list_users() pour l'admin : ${listB.length} inscrits, ${rowA?.invoice_count} factures pour A`);
+
 console.log(failures === 0 ? "\nTous les tests passent." : `\n${failures} test(s) en échec.`);
 process.exit(failures === 0 ? 0 : 1);
