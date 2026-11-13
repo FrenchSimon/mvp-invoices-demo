@@ -264,6 +264,7 @@ export function InvoiceEditor({
 
       <div className="mt-8 flex flex-wrap items-center justify-end gap-4">
         <FormMessage error={state.error} message={dirty ? undefined : state.message} />
+        {state.upgrade ? <Link href="/pro">Passer à Pro pour des factures illimitées</Link> : null}
         <SubmitButton pending={pending} variant={initial.id ? "outline" : "default"}>
           {initial.id ? "Enregistrer le brouillon" : "Créer la facture"}
         </SubmitButton>

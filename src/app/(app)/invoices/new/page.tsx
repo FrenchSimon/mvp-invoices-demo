@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { LoadingLine, PageHeader, PrimaryLink, Sheet } from "@/components/page-header";
 import { addDaysIso, todayIso } from "@/lib/format";
+import { FREE_MONTHLY_INVOICES, getPlanUsage } from "@/lib/plan";
 import { requireUser } from "@/lib/supabase/user";
 import { InvoiceEditor } from "../invoice-editor";
 
@@ -17,9 +18,28 @@ export default function NewInvoicePage() {
 }
 
 async function NewInvoice() {
-  const { supabase } = await requireUser();
-  const { data } = await supabase.from("clients").select("id, name").order("name");
+  const { supabase, user } = await requireUser();
+  const [{ data }, usage] = await Promise.all([
+    supabase.from("clients").select("id, name").order("name"),
+    getPlanUsage(supabase, user.id),
+  ]);
   const clients = data ?? [];
+
+  // Point 8 : la 4e facture du mois est bloquée par la base ; on le dit avant
+  // de faire remplir l'éditeur, et on propose Pro.
+  if (usage.limitReached) {
+    return (
+      <>
+        <PageHeader title="Nouvelle facture" back={{ href: "/invoices", label: "Factures" }} />
+        <p className="mb-2 text-ink-soft">
+          Vous avez créé vos {FREE_MONTHLY_INVOICES} factures gratuites ce mois-ci. Le compteur repart à zéro le 1er
+          du mois prochain.
+        </p>
+        <p className="mb-6 text-ink-soft">Avec Pro (9 € par mois), les factures sont illimitées et votre logo apparaît sur le PDF.</p>
+        <PrimaryLink href="/pro">Passer à Pro</PrimaryLink>
+      </>
+    );
+  }
 
   if (clients.length === 0) {
     return (

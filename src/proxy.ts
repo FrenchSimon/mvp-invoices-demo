@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Pages réservées aux utilisateurs connectés.
-const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/invoices", "/settings", "/admin"];
+const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/invoices", "/settings", "/admin", "/pro"];
 // Pages inutiles une fois connecté : on renvoie vers le tableau de bord.
 const GUEST_ONLY = ["/login", "/signup"];
 

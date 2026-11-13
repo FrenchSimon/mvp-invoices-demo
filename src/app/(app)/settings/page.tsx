@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { LoadingLine, PageHeader, Sheet } from "@/components/page-header";
 import { requireUser } from "@/lib/supabase/user";
 import type { Profile } from "@/lib/invoices/types";
@@ -33,7 +34,8 @@ async function Settings() {
         <SettingsForm profile={profile} />
       </Sheet>
       <p className="mt-6 text-sm text-muted-foreground">
-        Compte : {user.email} · Formule {profile.plan === "pro" ? "Pro" : "gratuite"}
+        Compte : {user.email} · Formule {profile.plan === "pro" ? "Pro" : "gratuite"} ·{" "}
+        <Link href="/pro">{profile.plan === "pro" ? "Gérer mon abonnement" : "Passer à Pro"}</Link>
       </p>
     </>
   );

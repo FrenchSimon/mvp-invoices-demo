@@ -8,7 +8,8 @@ import { loadFullInvoice } from "@/lib/invoices/load";
 import { VAT_RATES } from "@/lib/invoices/totals";
 import { requireUser } from "@/lib/supabase/user";
 
-export type InvoiceFormState = { error?: string; message?: string };
+// upgrade : la création est refusée par la limite du plan gratuit, l'éditeur propose Pro.
+export type InvoiceFormState = { error?: string; message?: string; upgrade?: boolean };
 
 // Ligne telle que saisie dans l'éditeur (texte brut, converti ici).
 type RawLine = { description?: unknown; quantity?: unknown; price?: unknown };
@@ -17,7 +18,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function dbErrorMessage(message: string): string {
   if (message.includes("FREE_PLAN_LIMIT")) {
-    return "Le plan gratuit permet 3 factures par mois. Passez à Pro pour en créer davantage.";
+    return "Vous avez créé vos 3 factures gratuites ce mois-ci.";
   }
   if (message.includes("INVOICE_LOCKED")) return "Cette facture a été envoyée : elle ne peut plus être modifiée.";
   if (message.includes("INVOICE_NOT_FOUND")) return "Cette facture n'existe plus.";
@@ -85,7 +86,7 @@ export async function saveInvoice(
     p_notes: notes,
     p_items: items,
   });
-  if (error) return { error: dbErrorMessage(error.message) };
+  if (error) return { error: dbErrorMessage(error.message), upgrade: error.message.includes("FREE_PLAN_LIMIT") };
 
   if (!id) redirect(`/invoices/${data as string}`);
   refresh();
