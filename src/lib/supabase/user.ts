@@ -12,3 +12,16 @@ export async function requireUser() {
   if (!user) redirect("/login");
   return { supabase, user };
 }
+
+// Le compte connecté est-il admin ? Sert seulement à l'affichage (onglet, page) :
+// la base refuse de toute façon admin_list_users() à un compte non admin.
+// Toute erreur compte comme « pas admin ».
+export async function isAdmin(): Promise<boolean> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("is_admin");
+    return !error && data === true;
+  } catch {
+    return false;
+  }
+}

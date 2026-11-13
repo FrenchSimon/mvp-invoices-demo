@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, use } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -12,24 +12,29 @@ const TABS = [
   { href: "/settings", label: "Réglages" },
 ] as const;
 
+// Visible seulement pour le rôle admin (DESIGN.md).
+const ADMIN_TAB = { href: "/admin", label: "Admin" } as const;
+
 // Onglets texte. Actif : gras + soulignement terracotta de 2 px (DESIGN.md).
-// L'adresse n'est connue qu'à la requête : en attendant, les mêmes onglets sans onglet actif.
-export function AppNav() {
+// L'adresse et le rôle ne sont connus qu'à la requête : en attendant, les onglets
+// communs sans onglet actif.
+export function AppNav({ isAdmin }: { isAdmin: Promise<boolean> }) {
   return (
-    <Suspense fallback={<Tabs pathname={null} />}>
-      <ActiveTabs />
+    <Suspense fallback={<Tabs pathname={null} admin={false} />}>
+      <ActiveTabs isAdmin={isAdmin} />
     </Suspense>
   );
 }
 
-function ActiveTabs() {
-  return <Tabs pathname={usePathname()} />;
+function ActiveTabs({ isAdmin }: { isAdmin: Promise<boolean> }) {
+  return <Tabs pathname={usePathname()} admin={use(isAdmin)} />;
 }
 
-function Tabs({ pathname }: { pathname: string | null }) {
+function Tabs({ pathname, admin }: { pathname: string | null; admin: boolean }) {
+  const tabs = admin ? [...TABS, ADMIN_TAB] : TABS;
   return (
     <nav aria-label="Navigation principale" className="flex flex-wrap gap-x-7 gap-y-1">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const active = pathname !== null && (pathname === tab.href || pathname.startsWith(`${tab.href}/`));
         return (
           <Link

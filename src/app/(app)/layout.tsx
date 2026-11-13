@@ -1,9 +1,12 @@
 import { Brand } from "@/components/brand";
+import { isAdmin } from "@/lib/supabase/user";
 import { logout } from "../(auth)/actions";
 import { AppNav } from "./nav";
 
 // Espace connecté : logo à gauche, onglets à droite. Le proxy renvoie vers /login sans session.
 export default function AppLayout({ children }: LayoutProps<"/">) {
+  // Pas attendu ici : la barre s'affiche tout de suite, l'onglet Admin arrive avec la requête.
+  const admin = isAdmin();
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border">
@@ -12,7 +15,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
             <Brand />
           </div>
           <div className="flex flex-wrap items-end gap-x-7">
-            <AppNav />
+            <AppNav isAdmin={admin} />
             <form action={logout} className="pb-3">
               <button type="submit" className="text-base text-destructive hover:underline">
                 Se déconnecter
