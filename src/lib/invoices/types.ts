@@ -54,6 +54,7 @@ export type Profile = {
   vat_number: string;
   email: string;
   plan: "free" | "pro";
+  logo_path: string | null;
 };
 
 // Une liste de colonnes pour la vue, partagée par les pages.

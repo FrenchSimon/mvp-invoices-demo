@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest, ctx: RouteContext<"/invoices/[i
   } = await supabase.auth.getUser();
   if (!user) return new Response("Connexion requise.", { status: 401 });
 
-  const data = await loadFullInvoice(supabase, id);
+  const data = await loadFullInvoice(supabase, id, { withLogo: true });
   if (!data) return new Response("Facture introuvable.", { status: 404 });
 
   const pdf = await renderInvoicePdf(data);

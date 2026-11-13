@@ -24,6 +24,18 @@ create function auth.uid() returns uuid language sql stable as
   $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 grant usage on schema public, auth to anon, authenticated, service_role;
 grant execute on function auth.uid() to anon, authenticated;
+-- Stockage de Supabase, réduit à ce que les migrations utilisent.
+create schema storage;
+create table storage.buckets (id text primary key, name text, public boolean,
+  file_size_limit bigint, allowed_mime_types text[]);
+create table storage.objects (id uuid primary key default gen_random_uuid(),
+  bucket_id text references storage.buckets, name text, owner uuid default auth.uid());
+alter table storage.objects enable row level security;
+create function storage.foldername(name text) returns text[] language sql immutable as
+  $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
+grant usage on schema storage to anon, authenticated, service_role;
+grant select, insert, update, delete on storage.objects to authenticated;
+grant select on storage.buckets to authenticated;
 `;
 await db.exec(stub);
 await db.exec(migration);
@@ -208,6 +220,23 @@ const totalA = await db.query(`select count(*)::int n from public.invoices where
 ok(listB.length === 2 && rowA?.email === "a@test.fr" && rowA?.plan === "pro"
   && Number(rowA?.invoice_count) === totalA.rows[0].n,
   `admin_list_users() pour l'admin : ${listB.length} inscrits, ${rowA?.invoice_count} factures pour A`);
+
+// Logo (point 10) : espace privé, un dossier par freelance, envoi réservé à Pro.
+const bucket = (await db.query(`select public, file_size_limit, allowed_mime_types from storage.buckets where id = 'logos'`)).rows[0];
+ok(bucket?.public === false && Number(bucket?.file_size_limit) === 512000,
+  "espace « logos » privé, 500 Ko au plus");
+await db.exec(`update public.profiles set plan = 'free' where id = '${B}'`);
+const freeLogo = await as(B, () => fails(`insert into storage.objects (bucket_id, name) values ('logos', '${B}/logo.png')`));
+ok(freeLogo !== null, "formule gratuite : envoi d'un logo refusé");
+const proLogo = await as(A, () => fails(`insert into storage.objects (bucket_id, name) values ('logos', '${A}/logo.png')`));
+ok(proLogo === null, "formule Pro : envoi d'un logo dans son dossier accepté");
+const otherFolder = await as(A, () => fails(`insert into storage.objects (bucket_id, name) values ('logos', '${B}/pirate.png')`));
+ok(otherFolder !== null, "envoi dans le dossier d'un autre freelance refusé");
+const logosSeenByB = await as(B, async () => (await db.query(`select count(*)::int n from storage.objects where bucket_id = 'logos'`)).rows[0].n);
+const logosSeenByA = await as(A, async () => (await db.query(`select count(*)::int n from storage.objects where bucket_id = 'logos'`)).rows[0].n);
+ok(logosSeenByB === 0 && logosSeenByA === 1, "chacun ne voit que son propre logo");
+const delByB = await as(B, async () => (await db.query(`delete from storage.objects where name = '${A}/logo.png'`)).affectedRows);
+ok(delByB === 0, "impossible de supprimer le logo d'un autre freelance");
 
 console.log(failures === 0 ? "\nTous les tests passent." : `\n${failures} test(s) en échec.`);
 process.exit(failures === 0 ? 0 : 1);

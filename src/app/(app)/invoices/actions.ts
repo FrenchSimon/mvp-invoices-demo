@@ -121,7 +121,7 @@ export async function emailInvoice(_prev: EmailState, formData: FormData): Promi
   const id = String(formData.get("id") ?? "");
   const { supabase } = await requireUser();
 
-  const data = await loadFullInvoice(supabase, id);
+  const data = await loadFullInvoice(supabase, id, { withLogo: true });
   if (!data) return { error: "Cette facture n'existe plus." };
   if (data.invoice.status === "paid") return { error: "Cette facture est déjà payée." };
   if (data.items.length === 0) return { error: "Ajoutez au moins une ligne." };

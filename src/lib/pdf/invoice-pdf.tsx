@@ -1,5 +1,5 @@
 import path from "node:path";
-import { Document, Font, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Font, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { formatDate, formatMoney, formatNumber, formatRate } from "@/lib/format";
 import { lineTotalCents, VAT_EXEMPTION_NOTE } from "@/lib/invoices/totals";
 import type { FullInvoice } from "@/lib/invoices/load";
@@ -33,6 +33,8 @@ const s = StyleSheet.create({
   page: { paddingTop: 48, paddingBottom: 64, paddingHorizontal: 48, fontFamily: "Source Sans 3", fontSize: 10, color: INK, lineHeight: 1.4 },
   header: { flexDirection: "row", justifyContent: "space-between", marginBottom: 36 },
   company: { maxWidth: 260 },
+  // Logo (Pro) : tient dans 160 × 56 pt, proportions gardées, aligné à gauche.
+  logo: { maxWidth: 160, maxHeight: 56, objectFit: "contain", objectPosition: "left", marginBottom: 10 },
   companyName: { fontFamily: "Newsreader", fontSize: 18, marginBottom: 4 },
   soft: { color: INK_SOFT },
   muted: { color: MUTED, fontSize: 9 },
@@ -59,7 +61,7 @@ const s = StyleSheet.create({
 });
 
 function InvoiceDocument({ data }: { data: FullInvoice }) {
-  const { invoice, summary, items, client, company } = data;
+  const { invoice, summary, items, client, company, logo } = data;
   const rate = summary.vat_rate;
 
   return (
@@ -67,6 +69,8 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           <View style={s.company}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- Image de react-pdf, pas une balise img */}
+            {logo ? <Image src={logo} style={s.logo} /> : null}
             <Text style={s.companyName}>{company.company_name || company.email}</Text>
             {company.address ? <Text style={s.soft}>{company.address}</Text> : null}
             {company.email ? <Text style={s.soft}>{company.email}</Text> : null}

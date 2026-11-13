@@ -15,12 +15,21 @@ export type FullInvoice = {
   items: InvoiceItem[];
   client: Client;
   company: Profile;
+  // Logo de l'entreprise (PNG ou JPEG), seulement en Pro et si demandé.
+  logo: Buffer | null;
 };
+
+// Le logo n'est lu que pour le PDF : la page de la facture n'en a pas besoin.
+type LoadOptions = { withLogo?: boolean };
 
 // Tout ce qu'il faut pour le PDF (et l'email) d'une facture.
 // Passe par le client Supabase de la personne connectée : RLS s'applique,
 // une facture d'un autre freelance renvoie null.
-export async function loadFullInvoice(supabase: SupabaseClient, id: string): Promise<FullInvoice | null> {
+export async function loadFullInvoice(
+  supabase: SupabaseClient,
+  id: string,
+  { withLogo = false }: LoadOptions = {},
+): Promise<FullInvoice | null> {
   const [{ data: inv }, { data: summaryRow }, { data: itemRows }] = await Promise.all([
     supabase
       .from("invoices")
@@ -40,11 +49,12 @@ export async function loadFullInvoice(supabase: SupabaseClient, id: string): Pro
     supabase.from("clients").select("id, name, email, address, vat_number").eq("id", inv.client_id).single(),
     supabase
       .from("profiles")
-      .select("company_name, address, vat_number, email, plan")
+      .select("company_name, address, vat_number, email, plan, logo_path")
       .eq("id", inv.user_id)
       .single(),
   ]);
   if (!client || !company) return null;
+  const profile = company as Profile;
 
   return {
     invoice: { ...(inv as Invoice), vat_rate: Number(inv.vat_rate) },
@@ -55,6 +65,19 @@ export async function loadFullInvoice(supabase: SupabaseClient, id: string): Pro
       unit_price_cents: Number(it.unit_price_cents),
     })),
     client: client as Client,
-    company: company as Profile,
+    company: profile,
+    logo: withLogo ? await loadLogo(supabase, profile) : null,
   };
+}
+
+// Logo du compte Pro, lu dans l'espace privé « logos » avec les droits de la
+// personne connectée. Formule gratuite, pas de logo ou erreur : PDF sans logo.
+async function loadLogo(supabase: SupabaseClient, company: Profile): Promise<Buffer | null> {
+  if (company.plan !== "pro" || !company.logo_path) return null;
+  const { data, error } = await supabase.storage.from("logos").download(company.logo_path);
+  if (error || !data) {
+    console.error("[pdf] logo", company.logo_path, error);
+    return null;
+  }
+  return Buffer.from(await data.arrayBuffer());
 }
