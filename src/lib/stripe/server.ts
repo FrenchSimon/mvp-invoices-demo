@@ -1,10 +1,11 @@
 import Stripe from "stripe";
+import { APP_NAME } from "@/components/brand";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // Prix du plan Pro (checklist, point 9). Défini dans le code plutôt que dans
 // le tableau de bord Stripe : rien à créer à la main, même prix en test et en production.
 export const PRO_PRICE_CENTS = 900;
-export const PRO_PRODUCT_NAME = "Facturelle Pro";
+export const PRO_PRODUCT_NAME = `${APP_NAME} Pro`;
 
 let stripe: Stripe | null = null;
 
@@ -13,7 +14,7 @@ export function getStripe(): Stripe {
   if (stripe) return stripe;
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("STRIPE_SECRET_KEY manquante.");
-  stripe = new Stripe(key, { appInfo: { name: "Facturelle" } });
+  stripe = new Stripe(key, { appInfo: { name: APP_NAME } });
   return stripe;
 }
 

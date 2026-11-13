@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-// Logo « L » terracotta + nom de l'app (le nom définitif reste à fournir par Léa).
-export const APP_NAME = "[Nom de l'app]";
+// Logo « F » terracotta + nom de l'app, choisi par Léa.
+export const APP_NAME = "Facturelle";
 
 export function Brand() {
   return (
@@ -10,7 +10,7 @@ export function Brand() {
         aria-hidden
         className="flex size-8 items-center justify-center rounded-md bg-primary font-heading text-lg font-semibold text-primary-foreground"
       >
-        L
+        F
       </span>
       <span className="font-heading text-lg font-medium">{APP_NAME}</span>
     </Link>

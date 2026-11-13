@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { APP_NAME } from "@/components/brand";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { FullInvoice } from "@/lib/invoices/load";
 import { invoiceFileName, renderInvoicePdf } from "@/lib/pdf/invoice-pdf";
@@ -39,10 +40,12 @@ export function invoiceEmailContent(data: FullInvoice) {
     "Merci et bonne journée,",
     from,
   ];
-  const text = paragraphs.join("\n\n");
+  // Mention discrète de l'app en bas, après la signature du freelance.
+  const footer = `Facture envoyée avec ${APP_NAME}.`;
+  const text = [...paragraphs, "--", footer].join("\n\n");
   const html = `<div style="font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#2b2622">${paragraphs
     .map((p) => `<p style="margin:0 0 14px">${escapeHtml(p)}</p>`)
-    .join("")}</div>`;
+    .join("")}<p style="margin:24px 0 0;font-size:13px;color:#6b5f55">${escapeHtml(footer)}</p></div>`;
   return { subject, text, html };
 }
 

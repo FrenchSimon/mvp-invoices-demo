@@ -47,7 +47,7 @@ Statuts, toujours avec leur libellé (jamais la couleur seule) :
 
 ## Navigation
 
-- Barre du haut : logo L + nom de l'app à gauche, onglets texte à droite (Tableau de bord, Factures, Clients, Réglages). Onglet actif : texte en gras + soulignement terracotta de 2 px.
+- Barre du haut : logo F + nom de l'app à gauche, onglets texte à droite (Tableau de bord, Factures, Clients, Réglages). Onglet actif : texte en gras + soulignement terracotta de 2 px.
 - Admin : onglet en plus, visible seulement pour le rôle admin.
 
 ## Composants
