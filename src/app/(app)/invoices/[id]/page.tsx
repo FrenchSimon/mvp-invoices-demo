@@ -4,27 +4,31 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LoadingLine, SecondaryLink, Sheet } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
+import { FormMessage } from "@/components/ui/field";
 import { formatDate, formatDay, formatMoney, formatNumber } from "@/lib/format";
 import { lineTotalCents } from "@/lib/invoices/totals";
 import { requireUser } from "@/lib/supabase/user";
 import { loadFullInvoice } from "@/lib/invoices/load";
 import type { Client, Invoice, InvoiceItem, InvoiceSummary } from "@/lib/invoices/types";
 import { Totals } from "../invoice-editor";
+import { EmailButton } from "../email-button";
 import { StatusActions } from "../status-actions";
 import { DraftWorkspace } from "./draft-workspace";
 
 export const metadata: Metadata = { title: "Facture" };
 
-export default function InvoicePage({ params }: PageProps<"/invoices/[id]">) {
+export default function InvoicePage({ params, searchParams }: PageProps<"/invoices/[id]">) {
   return (
     <Suspense fallback={<LoadingLine />}>
-      <InvoiceDetail params={params} />
+      <InvoiceDetail params={params} searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function InvoiceDetail({ params }: Pick<PageProps<"/invoices/[id]">, "params">) {
-  const { id } = await params;
+async function InvoiceDetail({ params, searchParams }: Pick<PageProps<"/invoices/[id]">, "params" | "searchParams">) {
+  const [{ id }, query] = await Promise.all([params, searchParams]);
+  // Arrivée juste après l'envoi d'un brouillon par email (voir emailInvoice).
+  const justEmailed = query.email === "envoye";
   const { supabase } = await requireUser();
 
   // RLS : la facture d'un autre freelance n'est jamais renvoyée, donc 404.
@@ -40,6 +44,7 @@ async function InvoiceDetail({ params }: Pick<PageProps<"/invoices/[id]">, "para
       <DraftWorkspace
         title={title}
         badge={badge}
+        recipient={client.email.trim()}
         clients={clients ?? []}
         initial={{
           id: invoice.id,
@@ -64,6 +69,7 @@ async function InvoiceDetail({ params }: Pick<PageProps<"/invoices/[id]">, "para
         <SentInvoice title={title} badge={badge} invoice={invoice} summary={summary} items={items} client={client} />
       </Sheet>
       <aside className="flex min-w-0 flex-[1_1_220px] flex-col gap-5">
+        {justEmailed && client.email ? <FormMessage message={`Facture envoyée à ${client.email}.`} /> : null}
         <StatusActions id={invoice.id} status={invoice.status} />
         <StatusHistory summary={summary} />
       </aside>
@@ -101,6 +107,9 @@ function SentInvoice({
           <SecondaryLink href={`/invoices/${invoice.id}/pdf`} download>
             Télécharger le PDF
           </SecondaryLink>
+          {invoice.status === "sent" ? (
+            <EmailButton id={invoice.id} to={client.email.trim()} clientId={client.id} label="Renvoyer par email" />
+          ) : null}
         </div>
       </div>
 

@@ -2,7 +2,9 @@
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
+import { sendInvoiceEmail } from "@/lib/email/send-invoice";
 import { parseDecimal, parseEurosToCents } from "@/lib/format";
+import { loadFullInvoice } from "@/lib/invoices/load";
 import { VAT_RATES } from "@/lib/invoices/totals";
 import { requireUser } from "@/lib/supabase/user";
 
@@ -106,4 +108,37 @@ export async function setInvoiceStatus(_prev: StatusState, formData: FormData): 
 
   refresh();
   return {};
+}
+
+export type EmailState = { error?: string; message?: string };
+
+// Envoie la facture au client par email (PDF joint). Un brouillon passe ensuite
+// à « envoyée » (et se fige) ; une facture déjà envoyée peut être renvoyée, pour une relance.
+// La facture est relue avec les droits de la personne connectée : RLS empêche
+// d'envoyer celle d'un autre freelance.
+export async function emailInvoice(_prev: EmailState, formData: FormData): Promise<EmailState> {
+  const id = String(formData.get("id") ?? "");
+  const { supabase } = await requireUser();
+
+  const data = await loadFullInvoice(supabase, id);
+  if (!data) return { error: "Cette facture n'existe plus." };
+  if (data.invoice.status === "paid") return { error: "Cette facture est déjà payée." };
+  if (data.items.length === 0) return { error: "Ajoutez au moins une ligne." };
+  const to = data.client.email.trim();
+  if (!to) return { error: "Ce client n'a pas d'email. Ajoutez-le sur sa fiche." };
+
+  const sent = await sendInvoiceEmail(data, to);
+  if (!sent.ok) return { error: sent.error };
+
+  if (data.invoice.status === "draft") {
+    const { error } = await supabase.from("invoices").update({ status: "sent" }).eq("id", id);
+    if (error) {
+      refresh();
+      return { error: `Email envoyé à ${to}, mais le statut n'a pas pu passer à « envoyée ». Faites-le à droite.` };
+    }
+    // Le brouillon devient une facture figée : la page change de vue, le message passe par l'adresse.
+    redirect(`/invoices/${id}?email=envoye`);
+  }
+  refresh();
+  return { message: `Facture envoyée à ${to}.` };
 }

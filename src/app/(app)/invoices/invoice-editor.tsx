@@ -39,12 +39,15 @@ export function InvoiceEditor({
   clients,
   title,
   badge,
+  sendButton,
   onDirtyChange,
 }: {
   initial: EditorInitial;
   clients: { id: string; name: string }[];
   title: string;
   badge?: ReactNode;
+  // Bouton « Envoyer par email », affiché seulement quand tout est enregistré.
+  sendButton?: ReactNode;
   // Prévient la page qu'il reste des changements non enregistrés (statuts bloqués).
   onDirtyChange?: (dirty: boolean) => void;
 }) {
@@ -115,9 +118,12 @@ export function InvoiceEditor({
             dirty ? (
               <span className="text-sm text-muted-foreground">Enregistrez pour télécharger le PDF</span>
             ) : (
-              <SecondaryLink href={`/invoices/${initial.id}/pdf`} download>
-                Télécharger le PDF
-              </SecondaryLink>
+              <>
+                <SecondaryLink href={`/invoices/${initial.id}/pdf`} download>
+                  Télécharger le PDF
+                </SecondaryLink>
+                {sendButton}
+              </>
             )
           ) : null}
         </div>
