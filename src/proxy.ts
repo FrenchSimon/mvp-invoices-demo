@@ -3,6 +3,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Pages réservées aux utilisateurs connectés.
 const PROTECTED_PREFIXES = ["/dashboard", "/clients", "/invoices", "/settings", "/admin"];
+// Pages inutiles une fois connecté : on renvoie vers le tableau de bord.
+const GUEST_ONLY = ["/login", "/signup"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -42,6 +44,16 @@ export async function proxy(request: NextRequest) {
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
+  }
+
+  if (user && GUEST_ONLY.includes(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    url.search = "";
+    // Garder les cookies de session éventuellement rafraîchis par getUser().
+    const redirect = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
   }
 
   return response;

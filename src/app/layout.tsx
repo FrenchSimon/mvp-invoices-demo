@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader, Source_Sans_3 } from "next/font/google";
+import { APP_NAME } from "@/components/brand";
 import "./globals.css";
 
 // Polices de DESIGN.md : titres à empattements, texte sans empattements.
@@ -16,7 +17,7 @@ const body = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "[Nom de l'app]",
+  title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
   description: "Factures et suivi des paiements pour les freelances.",
 };
 
