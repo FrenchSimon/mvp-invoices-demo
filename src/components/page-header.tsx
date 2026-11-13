@@ -46,8 +46,8 @@ export function PrimaryLink({ href, children }: { href: string; children: string
 // Lien en bouton secondaire (contour terracotta).
 export function SecondaryLink({ href, children, download }: { href: string; children: string; download?: boolean }) {
   const className = cn(
-    buttonVariants({ variant: "outline" }),
-    "h-10 border-primary bg-transparent px-4 text-base text-destructive no-underline hover:bg-muted",
+    buttonVariants({ variant: "ghost" }),
+    "h-10 border-primary px-4 text-base text-destructive no-underline hover:text-destructive",
   );
   // Un fichier à télécharger : lien simple, sans navigation côté client.
   if (download) {

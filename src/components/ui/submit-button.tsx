@@ -17,10 +17,12 @@ export function SubmitButton({
     <Button
       type="submit"
       disabled={pending}
-      variant={variant}
+      // Secondaire : variante « ghost » (sans fond) + contour terracotta. cn() ne fusionne
+      // pas les classes Tailwind en conflit, d'où ce choix plutôt que « outline ».
+      variant={variant === "outline" ? "ghost" : "default"}
       className={cn(
         "h-10 px-4 text-base",
-        variant === "outline" && "border-primary bg-transparent text-destructive hover:bg-muted",
+        variant === "outline" && "border-primary text-destructive hover:text-destructive",
         className,
       )}
     >
