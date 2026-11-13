@@ -130,6 +130,65 @@ ok(invB.number === "2026-001", `B commence sa propre numérotation : ${invB.numb
 const del = await as(A, () => fails(`delete from public.clients where id = '${clientA}'`));
 ok(del !== null, "un client qui a des factures ne peut pas être supprimé");
 
+// save_invoice : facture et lignes enregistrées ensemble
+const items = (list) => `'${JSON.stringify(list)}'::jsonb`;
+const draftId = await as(A, async () => (await db.query(
+  `select public.save_invoice(null, '${clientA}', '2026-11-13', '2026-12-13', 20, 'Merci', ${items([
+    { description: "Logo", quantity: 1, unit_price_cents: 40000 },
+    { description: "Cartes", quantity: 3, unit_price_cents: 2500 },
+  ])}) id`)).rows[0].id);
+const draft = await as(A, async () => (await db.query(
+  `select number, status, subtotal_cents from public.invoice_summaries where id = '${draftId}'`)).rows[0]);
+ok(draft.status === "draft" && Number(draft.subtotal_cents) === 47500,
+  `save_invoice crée un brouillon numéroté ${draft.number} avec ses lignes (HT ${draft.subtotal_cents})`);
+await as(A, () => db.query(
+  `select public.save_invoice('${draftId}', '${clientA}', '2026-11-13', '2026-12-13', 0, '', ${items([
+    { description: "Logo", quantity: 1, unit_price_cents: 45000 },
+  ])})`));
+const edited = await as(A, async () => (await db.query(
+  `select (select count(*)::int from public.invoice_items where invoice_id = '${draftId}') n, vat_cents, number
+   from public.invoice_summaries where id = '${draftId}'`)).rows[0]);
+ok(edited.n === 1 && Number(edited.vat_cents) === 0 && edited.number === draft.number,
+  "modifier un brouillon remplace ses lignes, numéro inchangé");
+const noItems = await as(A, () => fails(
+  `select public.save_invoice('${draftId}', '${clientA}', '2026-11-13', '2026-12-13', 20, '', '[]'::jsonb)`));
+ok(noItems && noItems.includes("INVOICE_NO_ITEMS"), "une facture sans ligne est refusée");
+const bSave = await as(B, () => fails(
+  `select public.save_invoice('${draftId}', '${clientA}', '2026-11-13', '2026-12-13', 20, '', ${items([
+    { description: "x", quantity: 1, unit_price_cents: 1 },
+  ])})`));
+ok(bSave && bSave.includes("INVOICE_NOT_FOUND"), "B ne peut pas enregistrer une facture de A");
+
+// Facture envoyée : contenu figé, seul le statut change
+const lockedSave = await as(A, () => fails(
+  `select public.save_invoice('${inv1.id}', '${clientA}', '2026-01-01', '2026-01-31', 20, '', ${items([
+    { description: "x", quantity: 1, unit_price_cents: 1 },
+  ])})`));
+ok(lockedSave && lockedSave.includes("INVOICE_LOCKED"), "une facture envoyée ne peut plus être enregistrée");
+const lockedNotes = await as(A, () => fails(`update public.invoices set notes = 'modifié' where id = '${inv1.id}'`));
+ok(lockedNotes && lockedNotes.includes("INVOICE_LOCKED"), "le contenu d'une facture envoyée est figé");
+const lockedItem = await as(A, () => fails(
+  `insert into public.invoice_items (invoice_id, description) values ('${inv1.id}', 'ajout')`));
+ok(lockedItem !== null, "on ne peut pas ajouter de ligne à une facture envoyée");
+const lockedItemUpd = await as(A, async () => (await db.query(
+  `update public.invoice_items set unit_price_cents = 1 where invoice_id = '${inv1.id}'`)).affectedRows);
+ok(lockedItemUpd === 0, "on ne peut pas modifier les lignes d'une facture envoyée");
+const backToDraft = await as(A, () => fails(`update public.invoices set status = 'draft' where id = '${inv1.id}'`));
+ok(backToDraft && backToDraft.includes("INVOICE_LOCKED"), "une facture envoyée ne redevient pas brouillon");
+
+await as(A, () => db.query(`update public.invoices set status = 'paid' where id = '${inv1.id}'`));
+const paid = await as(A, async () => (await db.query(
+  `select display_status, paid_at from public.invoice_summaries where id = '${inv1.id}'`)).rows[0]);
+ok(paid.display_status === "paid" && paid.paid_at !== null, "payée : statut « paid » et date de paiement remplie");
+await as(A, () => db.query(`update public.invoices set status = 'sent' where id = '${inv1.id}'`));
+const unpaid = await as(A, async () => (await db.query(
+  `select display_status, paid_at from public.invoice_summaries where id = '${inv1.id}'`)).rows[0]);
+ok(unpaid.display_status === "overdue" && unpaid.paid_at === null,
+  "annuler le paiement efface la date et la facture redevient en retard");
+
+const delInv = await as(A, async () => (await db.query(`delete from public.invoices where id = '${draftId}'`)).affectedRows);
+ok(delInv === 0, "une facture ne peut pas être supprimée (numérotation continue)");
+
 // is_admin
 const adm1 = await as(A, async () => (await db.query(`select public.is_admin() a`)).rows[0].a);
 await db.exec(`update public.profiles set role = 'admin' where id = '${B}'`);
