@@ -147,22 +147,30 @@ function SentInvoice({
         </div>
       </dl>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[520px] border-t border-rule-strong text-left tabular-nums">
+      {/* Sur téléphone : quantité et prix unitaire passent sous la description. */}
+      <div>
+        <table className="w-full border-t border-rule-strong text-left tabular-nums">
           <thead>
             <tr className="border-b border-border text-sm text-muted-foreground">
               <th className="py-2 pr-3 font-semibold">Description</th>
-              <th className="py-2 pr-3 text-right font-semibold">Qté</th>
-              <th className="py-2 pr-3 text-right font-semibold">Prix unitaire HT</th>
+              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Qté</th>
+              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Prix unitaire HT</th>
               <th className="py-2 text-right font-semibold">Total HT</th>
             </tr>
           </thead>
           <tbody>
             {items.map((it) => (
               <tr key={it.id} className="border-b border-border align-top">
-                <td className="py-2.5 pr-3">{it.description}</td>
-                <td className="py-2.5 pr-3 text-right">{formatNumber(it.quantity)}</td>
-                <td className="py-2.5 pr-3 text-right whitespace-nowrap">{formatMoney(it.unit_price_cents)}</td>
+                <td className="py-2.5 pr-3">
+                  {it.description}
+                  <span className="block text-sm text-muted-foreground sm:hidden">
+                    {formatNumber(it.quantity)} × {formatMoney(it.unit_price_cents)} HT
+                  </span>
+                </td>
+                <td className="hidden py-2.5 pr-3 text-right sm:table-cell">{formatNumber(it.quantity)}</td>
+                <td className="hidden py-2.5 pr-3 text-right whitespace-nowrap sm:table-cell">
+                  {formatMoney(it.unit_price_cents)}
+                </td>
                 <td className="py-2.5 text-right whitespace-nowrap">
                   {formatMoney(lineTotalCents({ quantity: it.quantity, unitPriceCents: it.unit_price_cents }))}
                 </td>

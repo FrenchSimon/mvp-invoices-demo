@@ -14,14 +14,15 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           <div className="pb-3">
             <Brand />
           </div>
-          <div className="flex flex-wrap items-end gap-x-7">
+          {/* Sur téléphone : « Se déconnecter » à droite du logo, les onglets sur leur propre ligne. */}
+          <div className="order-3 flex w-full flex-wrap items-end gap-x-7 sm:order-2 sm:ml-auto sm:w-auto">
             <AppNav isAdmin={admin} />
-            <form action={logout} className="pb-3">
-              <button type="submit" className="text-base text-destructive hover:underline">
-                Se déconnecter
-              </button>
-            </form>
           </div>
+          <form action={logout} className="order-2 pb-3 sm:order-3">
+            <button type="submit" className="text-base text-destructive hover:underline">
+              Se déconnecter
+            </button>
+          </form>
         </div>
       </header>
       <main className="mx-auto w-full max-w-[1120px] flex-1 px-4 py-8 sm:px-8 sm:py-10">{children}</main>

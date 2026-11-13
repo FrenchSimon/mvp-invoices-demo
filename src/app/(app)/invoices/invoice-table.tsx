@@ -4,10 +4,32 @@ import { formatDate, formatMoney } from "@/lib/format";
 import type { InvoiceSummary } from "@/lib/invoices/types";
 
 // Liste de factures en tableau à filets (page Factures et tableau de bord).
+// Sur téléphone, le tableau devient une liste à filets sur deux lignes :
+// numéro et montant en haut, client, échéance et statut en dessous.
 export function InvoiceTable({ invoices }: { invoices: InvoiceSummary[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[640px] border-t border-rule-strong text-left">
+    <>
+      <ul className="border-t border-rule-strong tabular-nums sm:hidden">
+        {invoices.map((inv) => (
+          <li key={inv.id} className="border-b border-border py-3">
+            <div className="flex items-baseline justify-between gap-4">
+              <Link href={`/invoices/${inv.id}`} className="font-semibold">
+                {inv.number}
+              </Link>
+              <span className={`whitespace-nowrap ${inv.display_status === "overdue" ? "text-destructive" : ""}`}>
+                {formatMoney(inv.total_cents)}
+              </span>
+            </div>
+            <div className="mt-1 flex items-center justify-between gap-4 text-sm text-ink-soft">
+              <span className="min-w-0 truncate">
+                {inv.client_name} · échéance {formatDate(inv.due_date)}
+              </span>
+              <StatusBadge status={inv.display_status} />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <table className="hidden w-full border-t border-rule-strong text-left sm:table">
         <thead>
           <tr className="border-b border-border text-sm text-muted-foreground">
             <th className="py-3 pr-4 font-semibold">N°</th>
@@ -41,6 +63,6 @@ export function InvoiceTable({ invoices }: { invoices: InvoiceSummary[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </>
   );
 }

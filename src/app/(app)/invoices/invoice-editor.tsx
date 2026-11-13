@@ -186,32 +186,39 @@ export function InvoiceEditor({
         {lines.map((line, index) => (
           <div
             key={line.key}
-            className="grid grid-cols-[1fr_1fr] items-center gap-x-3 gap-y-2 border-b border-border py-3 sm:grid-cols-[minmax(0,1fr)_80px_130px_120px_44px] sm:py-2"
+            className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-end gap-x-3 sm:items-center gap-y-2 border-b border-border py-3 sm:grid-cols-[minmax(0,1fr)_80px_130px_120px_44px] sm:py-2"
           >
             <input
               aria-label={`Description, ligne ${index + 1}`}
               placeholder="Description"
               value={line.description}
               onChange={(e) => updateLine(line.key, { description: e.target.value })}
-              className="col-span-2 h-10 rounded-md border border-input bg-card px-3 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 sm:col-span-1"
+              className="col-span-2 h-10 w-full min-w-0 rounded-md border border-input bg-card px-3 outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 sm:col-span-1"
             />
-            <input
-              aria-label={`Quantité, ligne ${index + 1}`}
-              inputMode="decimal"
-              placeholder="Qté"
-              value={line.quantity}
-              onChange={(e) => updateLine(line.key, { quantity: e.target.value })}
-              className="h-10 rounded-md border border-input bg-card px-3 text-right tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-            />
-            <input
-              aria-label={`Prix unitaire HT, ligne ${index + 1}`}
-              inputMode="decimal"
-              placeholder="0,00"
-              value={line.price}
-              onChange={(e) => updateLine(line.key, { price: e.target.value })}
-              className="h-10 rounded-md border border-input bg-card px-3 text-right tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-            />
-            <span className="text-right tabular-nums sm:pr-0">
+            {/* Sur téléphone, l'en-tête des colonnes est masqué : libellé au-dessus du champ. */}
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className="text-sm text-muted-foreground sm:hidden">Qté</span>
+              <input
+                aria-label={`Quantité, ligne ${index + 1}`}
+                inputMode="decimal"
+                placeholder="Qté"
+                value={line.quantity}
+                onChange={(e) => updateLine(line.key, { quantity: e.target.value })}
+                className="w-full min-w-0 h-10 rounded-md border border-input bg-card px-3 text-right tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+              />
+            </label>
+            <label className="flex min-w-0 flex-col gap-1">
+              <span className="text-sm text-muted-foreground sm:hidden">Prix unitaire HT</span>
+              <input
+                aria-label={`Prix unitaire HT, ligne ${index + 1}`}
+                inputMode="decimal"
+                placeholder="0,00"
+                value={line.price}
+                onChange={(e) => updateLine(line.key, { price: e.target.value })}
+                className="w-full min-w-0 h-10 rounded-md border border-input bg-card px-3 text-right tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
+              />
+            </label>
+            <span className="self-center text-right tabular-nums sm:pr-0">
               <span className="text-sm text-muted-foreground sm:hidden">Total HT </span>
               {formatMoney(lineTotalCents(amounts[index]))}
             </span>
@@ -219,7 +226,7 @@ export function InvoiceEditor({
               type="button"
               aria-label={`Supprimer la ligne ${index + 1}`}
               onClick={() => removeLine(line.key)}
-              className="size-11 justify-self-end text-xl text-muted-foreground hover:text-destructive"
+              className="size-11 self-center justify-self-end text-xl text-muted-foreground hover:text-destructive"
             >
               ×
             </button>
