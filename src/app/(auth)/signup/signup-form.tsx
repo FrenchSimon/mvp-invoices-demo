@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { signup } from "../actions";
 import { Field, FormMessage } from "@/components/ui/field";
-import { SubmitButton } from "../submit-button";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 export function SignupForm() {
   const [state, action, pending] = useActionState(signup, {});
@@ -33,7 +33,7 @@ export function SignupForm() {
         required
       />
       <FormMessage error={state.error} />
-      <SubmitButton pending={pending}>Créer mon compte</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Créer mon compte</SubmitButton>
     </form>
   );
 }

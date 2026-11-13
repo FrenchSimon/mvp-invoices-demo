@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { updatePassword } from "../actions";
 import { Field, FormMessage } from "@/components/ui/field";
-import { SubmitButton } from "../submit-button";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 export function ResetForm() {
   const [state, action, pending] = useActionState(updatePassword, {});
@@ -30,7 +30,7 @@ export function ResetForm() {
         required
       />
       <FormMessage error={state.error} />
-      <SubmitButton pending={pending}>Enregistrer</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Enregistrer</SubmitButton>
     </form>
   );
 }

@@ -4,7 +4,7 @@ import { Suspense, useActionState } from "react";
 import Link from "next/link";
 import { login } from "../actions";
 import { Field, FormMessage } from "@/components/ui/field";
-import { SubmitButton } from "../submit-button";
+import { SubmitButton } from "@/components/ui/submit-button";
 import { LinkErrorNotice, NextInput } from "../search-param";
 
 export function LoginForm() {
@@ -39,7 +39,7 @@ export function LoginForm() {
         </Link>
       </div>
       <FormMessage error={state.error} message={state.message} />
-      <SubmitButton pending={pending}>Se connecter</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Se connecter</SubmitButton>
     </form>
   );
 }

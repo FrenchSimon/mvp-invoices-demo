@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { requestPasswordReset } from "../actions";
 import { Field, FormMessage } from "@/components/ui/field";
-import { SubmitButton } from "../submit-button";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 export function ForgotForm() {
   const [state, action, pending] = useActionState(requestPasswordReset, {});
@@ -22,7 +22,7 @@ export function ForgotForm() {
         defaultValue={state.email}
       />
       <FormMessage error={state.error} />
-      <SubmitButton pending={pending}>Recevoir le lien</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Recevoir le lien</SubmitButton>
     </form>
   );
 }

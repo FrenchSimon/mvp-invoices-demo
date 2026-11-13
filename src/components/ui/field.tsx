@@ -51,3 +51,44 @@ export function FormMessage({ error, message }: { error?: string; message?: stri
   }
   return null;
 }
+
+const controlClass = cn(
+  "rounded-md border border-input bg-card px-3 text-base text-foreground outline-none",
+  "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30",
+  "disabled:opacity-60",
+);
+
+export function TextAreaField({
+  label,
+  id,
+  className,
+  ...props
+}: ComponentProps<"textarea"> & { label: string; id: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm text-muted-foreground">
+        {label}
+      </label>
+      <textarea id={id} rows={3} className={cn(controlClass, "py-2", className)} {...props} />
+    </div>
+  );
+}
+
+export function SelectField({
+  label,
+  id,
+  className,
+  children,
+  ...props
+}: ComponentProps<"select"> & { label: string; id: string }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm text-muted-foreground">
+        {label}
+      </label>
+      <select id={id} className={cn(controlClass, "h-10", className)} {...props}>
+        {children}
+      </select>
+    </div>
+  );
+}
