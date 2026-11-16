@@ -138,6 +138,24 @@ const invB = await as(B, async () =>
   (await db.query(`insert into public.invoices (client_id, issue_date, due_date) values ('${clientB}', '2026-11-12', '2026-12-12') returning number`)).rows[0]);
 ok(invB.number === "2026-001", `B commence sa propre numérotation : ${invB.number}`);
 
+// Dates et statut fixés par la base (audit sécurité) : la limite gratuite ne se contourne pas.
+const forged = await as(B, async () => (await db.query(
+  `insert into public.invoices (client_id, created_at, status, sent_at, paid_at)
+   values ('${clientB}', '2020-01-01', 'paid', '2020-01-01', '2020-01-01')
+   returning id, created_at > now() - interval '1 minute' recent, status, sent_at, paid_at`)).rows[0]);
+ok(forged.recent && forged.status === "draft" && forged.sent_at === null && forged.paid_at === null,
+  "à la création, date, statut et dates d'envoi et de paiement sont fixés par la base");
+await as(B, () => db.query(`update public.invoices set created_at = '2020-01-01' where id = '${forged.id}'`));
+const moved = (await db.query(`select created_at > now() - interval '1 minute' recent from public.invoices where id = '${forged.id}'`)).rows[0];
+ok(moved.recent, "la date de création ne peut pas être modifiée");
+await as(B, () => db.query(`update public.invoices set status = 'paid' where id = '${forged.id}'`));
+await as(B, () => db.query(`update public.invoices set paid_at = '2020-01-01', sent_at = '2020-01-01' where id = '${forged.id}'`));
+const dates = (await db.query(`select paid_at > now() - interval '1 minute' paid_recent, sent_at from public.invoices where id = '${forged.id}'`)).rows[0];
+ok(dates.paid_recent && dates.sent_at === null, "les dates d'envoi et de paiement ne se modifient pas à la main");
+await as(B, () => db.query(`insert into public.invoices (client_id) values ('${clientB}')`));
+const bypass = await as(B, () => fails(`insert into public.invoices (client_id, created_at) values ('${clientB}', '2020-01-01')`));
+ok(bypass && bypass.includes("FREE_PLAN_LIMIT"), "une date de création passée ne contourne pas la limite gratuite");
+
 // Un client avec factures ne peut pas être supprimé
 const del = await as(A, () => fails(`delete from public.clients where id = '${clientA}'`));
 ok(del !== null, "un client qui a des factures ne peut pas être supprimé");
