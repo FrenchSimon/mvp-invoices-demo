@@ -67,7 +67,8 @@
   /* Filets */
   --border: #dcd1c2;
   --rule-strong: #2b2520;
-  --input: #cfc2b1;
+  /* Bord des champs : 3:1 mini contre la feuille et le fond (WCAG 1.4.11) */
+  --input: #948370;
   --ring: #b5532f;
 
   /* Statuts de facture (toujours avec un libellé) */
@@ -89,6 +90,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Placeholders lisibles : 4.5:1 mini (WCAG 1.4.3) */
+  ::placeholder {
+    color: var(--muted-foreground);
+    opacity: 1;
   }
   html {
     @apply font-sans;
