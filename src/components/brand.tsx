@@ -14,7 +14,8 @@ export function Brand() {
       >
         B
       </span>
-      <span className="font-heading text-lg font-medium">{APP_NAME}</span>
+      {/* pt-1 : même correction que le « B », pour aligner le nom sur le centre du carré. */}
+      <span className="pt-1 font-heading text-lg font-medium">{APP_NAME}</span>
     </Link>
   );
 }
