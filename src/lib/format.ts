@@ -3,13 +3,9 @@
 
 const money = new Intl.NumberFormat("en-IE", { style: "currency", currency: "EUR" });
 const number = new Intl.NumberFormat("en-IE", { maximumFractionDigits: 2 });
-const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
-const parisDay = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "Europe/Paris",
-});
+// Mois abrégés écrits à la main : Intl en-GB donne « Sept » pour septembre.
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const shortDate = (y: string, m: string, d: string) => `${Number(d)} ${MONTHS[Number(m) - 1]} ${y}`;
 
 export function formatMoney(cents: number): string {
   return money.format(cents / 100);
@@ -19,10 +15,11 @@ export function formatNumber(value: number): string {
   return number.format(value);
 }
 
-// "2026-11-13" -> "13 Nov 2026". Lu tel quel (minuit UTC formaté en UTC), sans décalage.
+// "2026-11-13" -> "13 Nov 2026". Lu tel quel, sans fuseau horaire.
 export function formatDate(iso: string | null | undefined): string {
   if (!iso) return "";
-  return day.format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));
+  const [y, m, d] = iso.slice(0, 10).split("-");
+  return shortDate(y, m, d);
 }
 
 // Taux de TVA : 20 -> "20%", 5.5 -> "5.5%".
@@ -61,5 +58,8 @@ export function addDaysIso(iso: string, days: number): string {
 // Horodatage (sent_at, paid_at) -> "13 Nov 2026", jour de Paris.
 export function formatDay(timestamp: string | null | undefined): string {
   if (!timestamp) return "";
-  return parisDay.format(new Date(timestamp));
+  const [y, m, d] = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" })
+    .format(new Date(timestamp))
+    .split("-");
+  return shortDate(y, m, d);
 }
