@@ -32,6 +32,23 @@ export function SignupForm() {
         minLength={8}
         required
       />
+      <div className="flex items-start gap-2.5">
+        <input
+          id="terms"
+          name="terms"
+          type="checkbox"
+          required
+          className="mt-1 size-4 shrink-0 accent-primary"
+        />
+        <label htmlFor="terms" className="text-[15px] text-ink-soft">
+          I accept the{" "}
+          {/* Démo : pas de vraies conditions publiées, lien factice comme dans le pied de page. */}
+          <a href="#">Terms of Service</a>{" "}
+          and the{" "}
+          <a href="#">Privacy Policy</a>
+          .
+        </label>
+      </div>
       <FormMessage error={state.error} />
       <SubmitButton pending={pending} className="w-full">Create my account</SubmitButton>
     </form>

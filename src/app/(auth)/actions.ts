@@ -27,12 +27,20 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
   if (password.length < MIN_PASSWORD) {
     return { error: `Your password must be at least ${MIN_PASSWORD} characters.`, email };
   }
+  // Vérifié aussi côté serveur : la case « J'accepte » ne suffit pas à elle seule.
+  if (formData.get("terms") !== "on") {
+    return { error: "Please accept the Terms of Service and the Privacy Policy.", email };
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${await siteOrigin()}/auth/confirm?next=/dashboard` },
+    options: {
+      emailRedirectTo: `${await siteOrigin()}/auth/confirm?next=/dashboard`,
+      // Date d'acceptation gardée dans le compte (auth.users.raw_user_meta_data).
+      data: { terms_accepted_at: new Date().toISOString() },
+    },
   });
   if (error) return { error: authErrorMessage(error), email };
 
