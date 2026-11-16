@@ -27,7 +27,8 @@ export default function InvoicePage({ params, searchParams }: PageProps<"/invoic
 async function InvoiceDetail({ params, searchParams }: Pick<PageProps<"/invoices/[id]">, "params" | "searchParams">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   // Arrivée juste après l'envoi d'un brouillon par email (voir emailInvoice).
-  const justEmailed = query.email === "sent";
+  // « demo » : espace de démo, rien n'est vraiment envoyé.
+  const justEmailed = query.email === "sent" || query.email === "demo" ? query.email : null;
   const { supabase } = await requireUser();
 
   // RLS : la facture d'un autre freelance n'est jamais renvoyée, donc 404.
@@ -99,7 +100,7 @@ function SentInvoice({
   summary: InvoiceSummary;
   items: InvoiceItem[];
   client: Client;
-  justEmailed: boolean;
+  justEmailed: "sent" | "demo" | null;
 }) {
   return (
     <>
@@ -121,7 +122,13 @@ function SentInvoice({
               to={client.email.trim()}
               clientId={client.id}
               label="Resend by email"
-              initialMessage={justEmailed ? `Invoice sent to ${client.email.trim()}.` : undefined}
+              initialMessage={
+                justEmailed === "demo"
+                  ? `Demo: no email was sent to ${client.email.trim()}. The invoice is now marked as sent.`
+                  : justEmailed
+                    ? `Invoice sent to ${client.email.trim()}.`
+                    : undefined
+              }
             />
           ) : null}
         </div>

@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { Brand } from "@/components/brand";
 import { isAdmin } from "@/lib/supabase/user";
 import { logout } from "../(auth)/actions";
+import { DemoBanner } from "./demo-banner";
 import { AppNav } from "./nav";
 
 // Espace connecté : logo à gauche, onglets à droite. Le proxy renvoie vers /login sans session.
@@ -25,6 +27,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           </form>
         </div>
       </header>
+      <Suspense fallback={null}>
+        <DemoBanner />
+      </Suspense>
       <main className="mx-auto w-full max-w-[1120px] flex-1 px-4 py-8 sm:px-8 sm:py-10">{children}</main>
     </div>
   );

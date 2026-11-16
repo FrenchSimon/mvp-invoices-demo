@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { LoadingLine, PageHeader, Sheet } from "@/components/page-header";
-import { requireUser } from "@/lib/supabase/user";
+import { isDemoUser, requireUser } from "@/lib/supabase/user";
 import type { Profile } from "@/lib/invoices/types";
 import { LogoForm } from "./logo-form";
 import { SettingsForm } from "./settings-form";
@@ -29,6 +29,7 @@ async function Settings() {
     .single();
   const profile = data as Profile;
   const isPro = profile.plan === "pro";
+  const demo = isDemoUser(user);
 
   // Aperçu du logo : l'espace « logos » est privé, d'où une adresse signée (1 h).
   let logoUrl: string | null = null;
@@ -44,7 +45,18 @@ async function Settings() {
       </Sheet>
       <Sheet className="mt-6">
         <h2 className="mb-5 font-heading text-xl">Logo</h2>
-        {isPro ? (
+        {isPro && demo ? (
+          <>
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- adresse signée temporaire
+              <img src={logoUrl} alt="Current logo" className="mb-4 max-h-16 w-auto" />
+            ) : null}
+            <p className="text-ink-soft">
+              The demo uses a sample logo, shown on your PDF invoices. Uploading your own logo is
+              available with a real account.
+            </p>
+          </>
+        ) : isPro ? (
           <LogoForm previewUrl={logoUrl} />
         ) : (
           <p className="text-ink-soft">
@@ -53,7 +65,7 @@ async function Settings() {
         )}
       </Sheet>
       <p className="mt-6 text-sm text-muted-foreground">
-        Account: {user.email} · {isPro ? "Pro" : "Free"} plan ·{" "}
+        Account: {demo ? "demo workspace" : user.email} · {isPro ? "Pro" : "Free"} plan ·{" "}
         <Link href="/pro">{isPro ? "Manage my subscription" : "Upgrade to Pro"}</Link>
       </p>
     </>

@@ -19,11 +19,14 @@ create role anon nologin;
 create role authenticated nologin;
 create role service_role nologin bypassrls;
 create schema auth;
-create table auth.users (id uuid primary key, email text);
+create table auth.users (id uuid primary key, email text,
+  is_anonymous boolean not null default false, created_at timestamptz not null default now());
 create function auth.uid() returns uuid language sql stable as
   $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+create function auth.jwt() returns jsonb language sql stable as
+  $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb $$;
 grant usage on schema public, auth to anon, authenticated, service_role;
-grant execute on function auth.uid() to anon, authenticated;
+grant execute on function auth.uid(), auth.jwt() to anon, authenticated;
 -- Stockage de Supabase, réduit à ce que les migrations utilisent.
 create schema storage;
 create table storage.buckets (id text primary key, name text, public boolean,
@@ -58,7 +61,9 @@ const ok = (cond, label) => {
   if (!cond) failures++;
 };
 async function as(uid, fn) {
-  await db.exec(`set role authenticated; select set_config('request.jwt.claim.sub', '${uid}', false);`);
+  const anon = uid.startsWith("d") ? "true" : "false";
+  await db.exec(`set role authenticated; select set_config('request.jwt.claim.sub', '${uid}', false);
+    select set_config('request.jwt.claims', '{"sub":"${uid}","is_anonymous":${anon}}', false);`);
   try { return await fn(); } finally { await db.exec(`reset role;`); }
 }
 async function fails(sql) {
@@ -255,6 +260,57 @@ const logosSeenByA = await as(A, async () => (await db.query(`select count(*)::i
 ok(logosSeenByB === 0 && logosSeenByA === 1, "chacun ne voit que son propre logo");
 const delByB = await as(B, async () => (await db.query(`delete from storage.objects where name = '${A}/logo.png'`)).affectedRows);
 ok(delByB === 0, "impossible de supprimer le logo d'un autre freelance");
+
+// Espace de démo (bouton « Try the demo ») : compte anonyme rempli par seed_demo_workspace().
+const D = "d0000000-0000-0000-0000-00000000000d";
+await db.exec(`insert into auth.users (id, email, is_anonymous) values ('${D}', null, true);`);
+const seedReal = await as(A, () => fails(`select public.seed_demo_workspace()`));
+ok(seedReal && seedReal.includes("DEMO_ONLY"), "seed_demo_workspace() refusée à un vrai compte");
+await as(D, () => db.query(`select public.seed_demo_workspace()`));
+await as(D, () => db.query(`select public.seed_demo_workspace()`));
+const demo = await as(D, async () => (await db.query(`select
+  (select count(*)::int from public.clients) clients,
+  (select count(*)::int from public.invoices) invoices,
+  (select count(*)::int from public.invoice_summaries where display_status = 'paid') paid,
+  (select count(*)::int from public.invoice_summaries where display_status = 'overdue') overdue,
+  (select count(*)::int from public.invoice_summaries where display_status = 'sent') pending,
+  (select count(*)::int from public.invoice_summaries where display_status = 'draft') drafts,
+  (select count(*)::int from public.invoices where created_at >= date_trunc('month', now())) this_month,
+  (select count(*)::int from public.invoice_summaries where total_cents = 0) empty,
+  (select company_name from public.profiles) company`)).rows[0]);
+ok(demo.clients === 6 && demo.invoices === 12 && demo.paid === 7 && demo.overdue === 2
+  && demo.pending === 2 && demo.drafts === 1 && demo.empty === 0 && demo.company === "Northlight Studio",
+  `démo remplie une seule fois : ${JSON.stringify(demo)}`);
+ok(demo.this_month === 1, "démo : seul le brouillon compte dans les factures du mois");
+const seenByDemo = await as(D, async () => (await db.query(`select count(*)::int n from public.invoices where user_id <> '${D}'`)).rows[0].n);
+const demoSeenByA = await as(A, async () => (await db.query(`select count(*)::int n from public.invoices where user_id = '${D}'`)).rows[0].n);
+ok(seenByDemo === 0 && demoSeenByA === 0, "la démo et les vrais comptes ne se voient pas");
+const clientD = await as(D, async () => (await db.query(`select id from public.clients limit 1`)).rows[0].id);
+const forgedD = await as(D, async () => (await db.query(
+  `insert into public.invoices (client_id, created_at, status) values ('${clientD}', '2020-01-01', 'paid') returning status`)).rows[0]);
+ok(forgedD.status === "draft", "après le remplissage, la démo suit les règles normales (statut forcé)");
+await as(D, () => db.query(`insert into public.invoices (client_id) values ('${clientD}')`));
+const demoLimit = await as(D, () => fails(`insert into public.invoices (client_id) values ('${clientD}')`));
+ok(demoLimit && demoLimit.includes("FREE_PLAN_LIMIT"), "démo : la limite gratuite s'applique à la 4e facture du mois");
+const seedFlag = await as(D, async () => (await db.query(`select coalesce(current_setting('billnote.seeding', true), '') v`)).rows[0].v);
+ok(seedFlag !== "on", "le réglage de remplissage ne reste pas actif après seed_demo_workspace()");
+await db.exec(`update public.profiles set plan = 'pro' where id = '${D}'`);
+const demoUpload = await as(D, () => fails(`insert into storage.objects (bucket_id, name) values ('logos', '${D}/logo.png')`));
+ok(demoUpload !== null, "démo en Pro : envoi de logo refusé");
+await db.exec(`insert into storage.objects (bucket_id, name) values ('logos', 'demo/northlight-logo.png')`);
+const demoLogo = await as(D, async () => (await db.query(`select count(*)::int n from storage.objects where name = 'demo/northlight-logo.png'`)).rows[0].n);
+const demoLogoByA = await as(A, async () => (await db.query(`select count(*)::int n from storage.objects where name = 'demo/northlight-logo.png'`)).rows[0].n);
+ok(demoLogo === 1 && demoLogoByA === 0, "le logo de démo partagé n'est lisible que par les espaces de démo");
+const purgeByUser = await as(D, () => fails(`select public.purge_demo_workspaces()`));
+ok(purgeByUser !== null, "purge_demo_workspaces() refusée depuis le navigateur");
+await db.exec(`delete from storage.objects where name = 'demo/northlight-logo.png'`);
+const fresh = (await db.query(`select public.purge_demo_workspaces() n`)).rows[0].n;
+await db.exec(`update auth.users set created_at = now() - interval '25 hours' where id = '${D}'`);
+const purged = (await db.query(`select public.purge_demo_workspaces() n`)).rows[0].n;
+const left = (await db.query(`select (select count(*)::int from public.profiles where id = '${D}') p,
+  (select count(*)::int from public.invoices where user_id = '${D}') i, (select count(*)::int from public.profiles) all_p`)).rows[0];
+ok(fresh === 0 && purged === 1 && left.p === 0 && left.i === 0 && left.all_p === 2,
+  "purge : une démo de moins de 24 h est gardée, après 24 h elle est effacée, les vrais comptes restent");
 
 console.log(failures === 0 ? "\nTous les tests passent." : `\n${failures} test(s) en échec.`);
 process.exit(failures === 0 ? 0 : 1);

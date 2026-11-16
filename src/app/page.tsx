@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { SiteFooter } from "@/components/site-footer";
+import { DemoButton } from "@/components/demo-button";
 import { buttonVariants } from "@/components/ui/button";
 import { FREE_MONTHLY_INVOICES } from "@/lib/plan";
 import { cn } from "@/lib/utils";
@@ -13,11 +14,15 @@ export const metadata: Metadata = {
 
 // Accueil (maquette A « Le carnet », validée par Léa) : accroche à gauche,
 // facture d'exemple en feuille inclinée de 1° à droite, puis les deux formules.
+// « Try the demo » ouvre un espace de démo sans inscription (startDemo).
 // Page statique : une personne connectée qui clique « Se connecter » est
 // renvoyée vers son tableau de bord par le proxy.
 // cn() résout le conflit avec la taille de texte du bouton de base (comme PrimaryLink).
 // Texte des boutons en 16 px : à 17 px, Source Sans 3 se place 2 px trop haut dans le bouton.
 const primary = cn(buttonVariants(), "h-11 px-5 text-base font-semibold no-underline text-primary-foreground");
+// Secondaire : même contour terracotta que « Start for free » dans l'en-tête.
+const secondary =
+  "inline-flex h-11 cursor-pointer items-center rounded-md border border-primary px-5 text-base font-semibold text-destructive hover:bg-card";
 
 export default function Home() {
   return (
@@ -57,6 +62,7 @@ export default function Home() {
               <Link href="/signup" className={primary}>
                 Create my first invoice
               </Link>
+              <DemoButton className={secondary} />
               <span className="text-[15px] text-muted-foreground">Free, no credit card</span>
             </div>
           </div>

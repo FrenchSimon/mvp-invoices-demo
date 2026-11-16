@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { authErrorMessage } from "@/lib/auth/errors";
 import { safeNext } from "@/lib/auth/redirect";
+import { isDemoUser } from "@/lib/supabase/user";
 import type { FormState } from "@/lib/auth/types";
 
 const MIN_PASSWORD = 8;
@@ -108,8 +109,46 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
   redirect("/dashboard");
 }
 
+export type DemoState = { error?: string };
+
+// Bouton « Try the demo » : session anonyme (sans email), puis espace rempli de
+// données fictives par la base (seed_demo_workspace). Effacé après 24 h.
+// Déjà connecté (démo ou vrai compte) : on garde la session et on ouvre l'app.
+export async function startDemo(): Promise<DemoState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) {
+      console.error("[demo] sign-in", error);
+      return {
+        error:
+          error.code === "over_request_rate_limit"
+            ? "Too many demo sessions from your network. Try again in a little while."
+            : "The demo isn't available right now. Try again later.",
+      };
+    }
+  }
+  if (!user || isDemoUser(user)) {
+    // Sans effet si l'espace est déjà rempli.
+    const { error } = await supabase.rpc("seed_demo_workspace");
+    if (error) {
+      console.error("[demo] seed", error);
+      return { error: "The demo isn't available right now. Try again later." };
+    }
+  }
+  redirect("/dashboard");
+}
+
 export async function logout() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   await supabase.auth.signOut();
-  redirect("/login");
+  // Quitter la démo ramène à l'accueil (l'espace sera effacé au bout de 24 h).
+  redirect(isDemoUser(user) ? "/" : "/login");
 }

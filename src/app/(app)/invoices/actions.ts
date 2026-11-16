@@ -6,7 +6,7 @@ import { sendInvoiceEmail } from "@/lib/email/send-invoice";
 import { parseDecimal, parseEurosToCents } from "@/lib/format";
 import { loadFullInvoice } from "@/lib/invoices/load";
 import { VAT_RATES } from "@/lib/invoices/totals";
-import { requireUser } from "@/lib/supabase/user";
+import { isDemoUser, requireUser } from "@/lib/supabase/user";
 
 // upgrade : la création est refusée par la limite du plan gratuit, l'éditeur propose Pro.
 export type InvoiceFormState = { error?: string; message?: string; upgrade?: boolean };
@@ -119,17 +119,21 @@ export type EmailState = { error?: string; message?: string };
 // d'envoyer celle d'un autre freelance.
 export async function emailInvoice(_prev: EmailState, formData: FormData): Promise<EmailState> {
   const id = String(formData.get("id") ?? "");
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
+  // Espace de démo : aucun email ne part (adresses fictives, pas d'envoi au nom du site).
+  const demo = isDemoUser(user);
 
-  const data = await loadFullInvoice(supabase, id, { withLogo: true });
+  const data = await loadFullInvoice(supabase, id, { withLogo: !demo });
   if (!data) return { error: "This invoice no longer exists." };
   if (data.invoice.status === "paid") return { error: "This invoice is already paid." };
   if (data.items.length === 0) return { error: "Add at least one line." };
   const to = data.client.email.trim();
   if (!to) return { error: "This client has no email. Add one on their page." };
 
-  const sent = await sendInvoiceEmail(data, to);
-  if (!sent.ok) return { error: sent.error };
+  if (!demo) {
+    const sent = await sendInvoiceEmail(data, to);
+    if (!sent.ok) return { error: sent.error };
+  }
 
   if (data.invoice.status === "draft") {
     const { error } = await supabase.from("invoices").update({ status: "sent" }).eq("id", id);
@@ -138,8 +142,8 @@ export async function emailInvoice(_prev: EmailState, formData: FormData): Promi
       return { error: `Email sent to ${to}, but the status couldn't be changed to “Sent”. Do it on the right.` };
     }
     // Le brouillon devient une facture figée : la page change de vue, le message passe par l'adresse.
-    redirect(`/invoices/${id}?email=sent`);
+    redirect(`/invoices/${id}?email=${demo ? "demo" : "sent"}`);
   }
   refresh();
-  return { message: `Invoice sent to ${to}.` };
+  return { message: demo ? `Demo: no email was sent to ${to}.` : `Invoice sent to ${to}.` };
 }

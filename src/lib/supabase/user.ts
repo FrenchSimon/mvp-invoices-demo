@@ -13,6 +13,11 @@ export async function requireUser() {
   return { supabase, user };
 }
 
+// Espace de démo : session anonyme ouverte par le bouton « Try the demo ».
+export function isDemoUser(user: { is_anonymous?: boolean } | null | undefined): boolean {
+  return user?.is_anonymous === true;
+}
+
 // Le compte connecté est-il admin ? Sert seulement à l'affichage (onglet, page) :
 // la base refuse de toute façon admin_list_users() à un compte non admin.
 // Toute erreur compte comme « pas admin ».

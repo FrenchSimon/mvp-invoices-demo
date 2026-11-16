@@ -32,7 +32,8 @@ async function ensureCustomer(userId: string, email: string): Promise<string> {
 
   // Même clé d'idempotence : deux clics rapides ne créent qu'un client Stripe.
   const customer = await getStripe().customers.create(
-    { email, metadata: { user_id: userId } },
+    // Espace de démo : pas d'adresse, Stripe la demande sur sa page de paiement.
+    { email: email || undefined, metadata: { user_id: userId } },
     { idempotencyKey: `customer-${userId}` },
   );
   // La colonne n'est modifiable que par le serveur (droits de la migration init).

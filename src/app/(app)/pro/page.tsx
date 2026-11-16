@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { LoadingLine, PageHeader } from "@/components/page-header";
 import { FREE_MONTHLY_INVOICES, getPlanUsage } from "@/lib/plan";
 import { syncPlanFromStripe } from "@/lib/stripe/server";
-import { requireUser } from "@/lib/supabase/user";
+import { isDemoUser, requireUser } from "@/lib/supabase/user";
 import { CheckoutButton, PortalButton } from "./pro-buttons";
 
 export const metadata: Metadata = { title: "Pro plan" };
@@ -105,6 +105,13 @@ async function Pro({ searchParams }: { searchParams: PageProps<"/pro">["searchPa
           <p className="mt-4 text-sm text-muted-foreground">
             Card payment on Stripe&apos;s secure page. No commitment: cancel anytime.
           </p>
+          {isDemoUser(user) ? (
+            <p className="mt-4 rounded-md bg-card px-3 py-2 text-sm text-ink-soft">
+              Demo: Stripe runs in test mode, no real payment is taken. Use the card{" "}
+              <span className="font-semibold tabular-nums">4242 4242 4242 4242</span>, any future date
+              and any 3-digit code.
+            </p>
+          ) : null}
         </>
       )}
     </>
