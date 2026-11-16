@@ -23,9 +23,9 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
   const email = readEmail(formData);
   const password = String(formData.get("password") ?? "");
 
-  if (!email) return { error: "Indiquez votre adresse email.", email };
+  if (!email) return { error: "Enter your email address.", email };
   if (password.length < MIN_PASSWORD) {
-    return { error: `Le mot de passe doit faire au moins ${MIN_PASSWORD} caractères.`, email };
+    return { error: `Your password must be at least ${MIN_PASSWORD} characters.`, email };
   }
 
   const supabase = await createClient();
@@ -41,7 +41,7 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
 
   // Même message si l'adresse a déjà un compte : on ne révèle pas qui est inscrit.
   return {
-    message: `Presque fini : ouvrez le lien envoyé à ${email} pour activer votre compte.`,
+    message: `Almost done: open the link sent to ${email} to activate your account.`,
   };
 }
 
@@ -49,7 +49,7 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
   const email = readEmail(formData);
   const password = String(formData.get("password") ?? "");
 
-  if (!email || !password) return { error: "Indiquez votre email et votre mot de passe.", email };
+  if (!email || !password) return { error: "Enter your email and password.", email };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -63,7 +63,7 @@ export async function requestPasswordReset(
   formData: FormData,
 ): Promise<FormState> {
   const email = readEmail(formData);
-  if (!email) return { error: "Indiquez votre adresse email.", email };
+  if (!email) return { error: "Enter your email address.", email };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -73,7 +73,7 @@ export async function requestPasswordReset(
   if (error?.code === "over_email_send_rate_limit") return { error: authErrorMessage(error), email };
 
   return {
-    message: `Si un compte existe pour ${email}, un lien pour choisir un nouveau mot de passe vient d'être envoyé.`,
+    message: `If an account exists for ${email}, we've sent a link to choose a new password.`,
   };
 }
 
@@ -82,16 +82,16 @@ export async function updatePassword(_prev: FormState, formData: FormData): Prom
   const confirm = String(formData.get("confirm") ?? "");
 
   if (password.length < MIN_PASSWORD) {
-    return { error: `Le mot de passe doit faire au moins ${MIN_PASSWORD} caractères.` };
+    return { error: `Your password must be at least ${MIN_PASSWORD} characters.` };
   }
-  if (password !== confirm) return { error: "Les deux mots de passe ne sont pas identiques." };
+  if (password !== confirm) return { error: "The two passwords don't match." };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Ce lien a expiré. Demandez un nouveau lien depuis « Mot de passe oublié »." };
+    return { error: "This link has expired. Request a new one from “Forgot password”." };
   }
 
   const { error } = await supabase.auth.updateUser({ password });

@@ -14,7 +14,7 @@ import { EmailButton } from "../email-button";
 import { StatusActions } from "../status-actions";
 import { DraftWorkspace } from "./draft-workspace";
 
-export const metadata: Metadata = { title: "Facture" };
+export const metadata: Metadata = { title: "Invoice" };
 
 export default function InvoicePage({ params, searchParams }: PageProps<"/invoices/[id]">) {
   return (
@@ -27,14 +27,14 @@ export default function InvoicePage({ params, searchParams }: PageProps<"/invoic
 async function InvoiceDetail({ params, searchParams }: Pick<PageProps<"/invoices/[id]">, "params" | "searchParams">) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   // Arrivée juste après l'envoi d'un brouillon par email (voir emailInvoice).
-  const justEmailed = query.email === "envoye";
+  const justEmailed = query.email === "sent";
   const { supabase } = await requireUser();
 
   // RLS : la facture d'un autre freelance n'est jamais renvoyée, donc 404.
   const data = await loadFullInvoice(supabase, id);
   if (!data) notFound();
   const { invoice, summary, items, client } = data;
-  const title = `Facture ${invoice.number}`;
+  const title = `Invoice ${invoice.number}`;
   const badge = <StatusBadge status={summary.display_status} />;
 
   if (invoice.status === "draft") {
@@ -55,7 +55,7 @@ async function InvoiceDetail({ params, searchParams }: Pick<PageProps<"/invoices
           lines: items.map((it) => ({
             description: it.description,
             quantity: formatNumber(it.quantity),
-            price: (it.unit_price_cents / 100).toFixed(2).replace(".", ","),
+            price: (it.unit_price_cents / 100).toFixed(2),
           })),
         }}
       />
@@ -106,22 +106,22 @@ function SentInvoice({
       <div className="mb-8 flex flex-wrap justify-between gap-4">
         <div>
           <Link href="/invoices" className="text-sm">
-            ← Factures
+            ← Invoices
           </Link>
           <h1 className="mt-1 text-3xl sm:text-4xl">{title}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3 self-end">
           {badge}
           <SecondaryLink href={`/invoices/${invoice.id}/pdf`} download>
-            Télécharger le PDF
+            Download PDF
           </SecondaryLink>
           {invoice.status === "sent" ? (
             <EmailButton
               id={invoice.id}
               to={client.email.trim()}
               clientId={client.id}
-              label="Renvoyer par email"
-              initialMessage={justEmailed ? `Facture envoyée à ${client.email.trim()}.` : undefined}
+              label="Resend by email"
+              initialMessage={justEmailed ? `Invoice sent to ${client.email.trim()}.` : undefined}
             />
           ) : null}
         </div>
@@ -136,11 +136,11 @@ function SentInvoice({
           </dd>
         </div>
         <div>
-          <dt className="text-sm text-muted-foreground">Date d&apos;émission</dt>
+          <dt className="text-sm text-muted-foreground">Issue date</dt>
           <dd className="tabular-nums">{formatDate(invoice.issue_date)}</dd>
         </div>
         <div>
-          <dt className="text-sm text-muted-foreground">Échéance</dt>
+          <dt className="text-sm text-muted-foreground">Due date</dt>
           <dd className={`tabular-nums ${summary.display_status === "overdue" ? "font-semibold text-destructive" : ""}`}>
             {formatDate(invoice.due_date)}
           </dd>
@@ -153,9 +153,9 @@ function SentInvoice({
           <thead>
             <tr className="border-b border-border text-sm text-muted-foreground">
               <th className="py-2 pr-3 font-semibold">Description</th>
-              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Qté</th>
-              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Prix unitaire HT</th>
-              <th className="py-2 text-right font-semibold">Total HT</th>
+              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Qty</th>
+              <th className="hidden py-2 pr-3 text-right font-semibold sm:table-cell">Unit price</th>
+              <th className="py-2 text-right font-semibold">Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -164,7 +164,7 @@ function SentInvoice({
                 <td className="py-2.5 pr-3">
                   {it.description}
                   <span className="block text-sm text-muted-foreground sm:hidden">
-                    {formatNumber(it.quantity)} × {formatMoney(it.unit_price_cents)} HT
+                    {formatNumber(it.quantity)} × {formatMoney(it.unit_price_cents)}
                   </span>
                 </td>
                 <td className="hidden py-2.5 pr-3 text-right sm:table-cell">{formatNumber(it.quantity)}</td>
@@ -196,11 +196,11 @@ function SentInvoice({
 function StatusHistory({ summary }: { summary: InvoiceSummary }) {
   return (
     <div className="text-sm text-muted-foreground">
-      {summary.sent_at ? <p>Envoyée le {formatDay(summary.sent_at)}.</p> : null}
-      {summary.paid_at ? <p>Payée le {formatDay(summary.paid_at)}.</p> : null}
+      {summary.sent_at ? <p>Sent on {formatDay(summary.sent_at)}.</p> : null}
+      {summary.paid_at ? <p>Paid on {formatDay(summary.paid_at)}.</p> : null}
       {summary.display_status === "overdue" ? (
         <p className="font-semibold text-destructive">
-          Échéance dépassée : {formatMoney(summary.total_cents)} TTC à relancer.
+          Past due: {formatMoney(summary.total_cents)} to chase up.
         </p>
       ) : null}
     </div>

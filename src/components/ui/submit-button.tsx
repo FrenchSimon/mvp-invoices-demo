@@ -26,7 +26,7 @@ export function SubmitButton({
         className,
       )}
     >
-      {pending ? "Un instant…" : children}
+      {pending ? "One moment…" : children}
     </Button>
   );
 }

@@ -3,14 +3,14 @@ import Link from "next/link";
 import { AuthCard } from "../auth-card";
 import { ForgotForm } from "./forgot-form";
 
-export const metadata: Metadata = { title: "Mot de passe oublié" };
+export const metadata: Metadata = { title: "Forgot password" };
 
 export default function ForgotPasswordPage() {
   return (
     <AuthCard
-      title="Mot de passe oublié"
-      intro="Indiquez votre email : vous recevrez un lien pour choisir un nouveau mot de passe."
-      footer={<Link href="/login">Retour à la connexion</Link>}
+      title="Forgot password"
+      intro="Enter your email and we'll send you a link to choose a new password."
+      footer={<Link href="/login">Back to log in</Link>}
     >
       <ForgotForm />
     </AuthCard>

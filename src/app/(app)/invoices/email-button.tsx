@@ -43,20 +43,20 @@ export function EmailButton({
   if (!to) {
     return (
       <Link href={`/clients/${clientId}`} className="text-sm">
-        Ajouter l&apos;email du client pour l&apos;envoyer
+        Add the client&apos;s email to send it
       </Link>
     );
   }
 
   const body = confirming ? (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm text-ink-soft">Envoyer à {to} ?</span>
+      <span className="text-sm text-ink-soft">Send to {to}?</span>
       {inForm ? (
         <Button type="submit" formAction={action} disabled={pending} className="h-10 px-4 text-base">
-          {pending ? "Un instant…" : "Confirmer l'envoi"}
+          {pending ? "One moment…" : "Confirm and send"}
         </Button>
       ) : (
-        <SubmitButton pending={pending}>Confirmer l&apos;envoi</SubmitButton>
+        <SubmitButton pending={pending}>Confirm and send</SubmitButton>
       )}
       <button
         type="button"
@@ -64,7 +64,7 @@ export function EmailButton({
         onClick={() => setConfirming(false)}
         className="text-sm text-destructive hover:underline disabled:text-muted-foreground"
       >
-        Annuler
+        Cancel
       </button>
     </div>
   ) : (

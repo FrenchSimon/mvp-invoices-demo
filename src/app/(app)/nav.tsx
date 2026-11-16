@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { href: "/dashboard", label: "Tableau de bord" },
-  { href: "/invoices", label: "Factures" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/invoices", label: "Invoices" },
   { href: "/clients", label: "Clients" },
-  { href: "/settings", label: "Réglages" },
+  { href: "/settings", label: "Settings" },
 ] as const;
 
 // Visible seulement pour le rôle admin (DESIGN.md).
@@ -33,7 +33,7 @@ function ActiveTabs({ isAdmin }: { isAdmin: Promise<boolean> }) {
 function Tabs({ pathname, admin }: { pathname: string | null; admin: boolean }) {
   const tabs = admin ? [...TABS, ADMIN_TAB] : TABS;
   return (
-    <nav aria-label="Navigation principale" className="flex flex-wrap gap-x-7 gap-y-1">
+    <nav aria-label="Main navigation" className="flex flex-wrap gap-x-7 gap-y-1">
       {tabs.map((tab) => {
         const active = pathname !== null && (pathname === tab.href || pathname.startsWith(`${tab.href}/`));
         return (

@@ -6,14 +6,14 @@ import { getStripe, syncPlanFromStripe } from "@/lib/stripe/server";
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   const signature = request.headers.get("stripe-signature");
-  if (!secret || !signature) return new Response("Signature manquante.", { status: 400 });
+  if (!secret || !signature) return new Response("Missing signature.", { status: 400 });
 
   const body = await request.text();
   let event: Stripe.Event;
   try {
     event = getStripe().webhooks.constructEvent(body, signature, secret);
   } catch {
-    return new Response("Signature invalide.", { status: 400 });
+    return new Response("Invalid signature.", { status: 400 });
   }
 
   const customerId = customerOf(event);
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("[stripe webhook]", event.type, error);
       // 500 : Stripe renverra l'événement plus tard.
-      return new Response("Erreur de synchronisation.", { status: 500 });
+      return new Response("Sync error.", { status: 500 });
     }
   }
   return new Response("OK");

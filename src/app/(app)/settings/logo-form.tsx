@@ -17,16 +17,16 @@ export function LogoForm({ previewUrl }: { previewUrl: string | null }) {
     <div className="flex flex-col gap-5">
       {previewUrl ? (
         <div className="flex flex-col gap-1.5">
-          <p className="text-sm text-muted-foreground">Logo actuel</p>
+          <p className="text-sm text-muted-foreground">Current logo</p>
           {/* eslint-disable-next-line @next/next/no-img-element -- adresse signée temporaire, pas d'optimisation utile */}
-          <img src={previewUrl} alt="Logo de l'entreprise" className="max-h-14 max-w-40 object-contain object-left" />
+          <img src={previewUrl} alt="Business logo" className="max-h-14 max-w-40 object-contain object-left" />
         </div>
       ) : null}
 
       <form action={action} className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="logo" className="text-sm text-muted-foreground">
-            {previewUrl ? "Remplacer le logo" : "Votre logo"}
+            {previewUrl ? "Replace logo" : "Your logo"}
           </label>
           <input
             id="logo"
@@ -44,22 +44,22 @@ export function LogoForm({ previewUrl }: { previewUrl: string | null }) {
             className="text-base text-foreground file:mr-3 file:h-10 file:rounded-md file:border file:border-input file:bg-card file:px-3 file:text-foreground"
           />
           <p id="logo-hint" className="text-sm text-muted-foreground">
-            PNG ou JPEG, 500 Ko au plus. Il apparaît en haut à gauche de vos factures PDF.
+            PNG or JPEG, 500 KB max. It appears at the top left of your PDF invoices.
           </p>
         </div>
         <FormMessage
-          error={tooBig ? "Le logo dépasse 500 Ko. Choisissez une image plus légère." : state.error}
+          error={tooBig ? "The logo is over 500 KB. Choose a smaller image." : state.error}
           message={tooBig ? undefined : state.message}
         />
         <div>
-          <SubmitButton pending={pending}>Enregistrer le logo</SubmitButton>
+          <SubmitButton pending={pending}>Save logo</SubmitButton>
         </div>
       </form>
 
       {previewUrl ? (
         <form action={removeAction} className="flex flex-col items-start gap-3">
           <SubmitButton pending={removing} variant="outline">
-            Retirer le logo
+            Remove logo
           </SubmitButton>
           <FormMessage error={removeState.error} />
         </form>

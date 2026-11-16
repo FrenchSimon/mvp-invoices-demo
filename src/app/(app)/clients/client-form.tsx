@@ -14,26 +14,26 @@ export function ClientForm({ client }: { client?: Client }) {
   return (
     <form action={action} className="flex flex-col gap-5">
       {client ? <input type="hidden" name="id" value={client.id} /> : null}
-      <Field id="name" name="name" label="Nom ou raison sociale" required defaultValue={values?.name} />
+      <Field id="name" name="name" label="Name or company name" required defaultValue={values?.name} />
       <Field
         id="email"
         name="email"
         type="email"
         label="Email"
-        hint="L'adresse où envoyer les factures."
+        hint="The address invoices are sent to."
         defaultValue={values?.email}
       />
-      <TextAreaField id="address" name="address" label="Adresse" defaultValue={values?.address} />
+      <TextAreaField id="address" name="address" label="Address" defaultValue={values?.address} />
       <Field
         id="vat_number"
         name="vat_number"
-        label="N° de TVA intracommunautaire (facultatif)"
+        label="VAT number (optional)"
         defaultValue={values?.vat_number}
       />
       <FormMessage error={state.error} />
       <div className="flex flex-wrap items-center gap-5">
-        <SubmitButton pending={pending}>{client ? "Enregistrer" : "Ajouter le client"}</SubmitButton>
-        <Link href="/clients">Annuler</Link>
+        <SubmitButton pending={pending}>{client ? "Save" : "Add client"}</SubmitButton>
+        <Link href="/clients">Cancel</Link>
       </div>
     </form>
   );
@@ -46,7 +46,7 @@ export function DeleteClientForm({ id }: { id: string }) {
     <form
       action={action}
       onSubmit={(event) => {
-        if (!window.confirm("Supprimer ce client ? Cette action est définitive.")) {
+        if (!window.confirm("Delete this client? This cannot be undone.")) {
           event.preventDefault();
         }
       }}
@@ -58,7 +58,7 @@ export function DeleteClientForm({ id }: { id: string }) {
         disabled={pending}
         className="self-start text-base text-destructive hover:underline disabled:opacity-60"
       >
-        {pending ? "Suppression…" : "Supprimer ce client"}
+        {pending ? "Deleting…" : "Delete this client"}
       </button>
       <FormMessage error={state.error} />
     </form>

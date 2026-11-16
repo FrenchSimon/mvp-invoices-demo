@@ -7,7 +7,7 @@ import { requireUser } from "@/lib/supabase/user";
 import { SUMMARY_COLUMNS, toSummary, type InvoiceSummary } from "@/lib/invoices/types";
 import { InvoiceTable } from "../invoices/invoice-table";
 
-export const metadata: Metadata = { title: "Tableau de bord" };
+export const metadata: Metadata = { title: "Dashboard" };
 
 export default function DashboardPage() {
   return (
@@ -53,10 +53,10 @@ async function Dashboard() {
     supabase.from("profiles").select("plan, company_name").eq("id", user.id).single(),
   ]);
 
-  if (error) return <p role="alert" className="text-destructive">Le tableau de bord n&apos;a pas pu être chargé.</p>;
+  if (error) return <p role="alert" className="text-destructive">The dashboard couldn&apos;t be loaded.</p>;
   const invoices = (rows ?? []).map(toSummary);
   const totals = dashboardTotals(invoices, todayIso().slice(0, 7));
-  const monthTitle = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "Europe/Paris" }).format(now);
+  const monthTitle = new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "Europe/Paris" }).format(now);
 
   return (
     <>
@@ -65,38 +65,38 @@ async function Dashboard() {
           <h1 className="text-3xl first-letter:uppercase sm:text-4xl">{monthTitle}</h1>
           <p className="mt-1 text-muted-foreground">
             {profile?.plan === "pro"
-              ? "Formule Pro · factures illimitées"
-              : `Formule gratuite · ${Math.min(createdThisMonth ?? 0, 3)} facture${(createdThisMonth ?? 0) > 1 ? "s" : ""} sur 3 ce mois-ci`}
+              ? "Pro plan · unlimited invoices"
+              : `Free plan · ${Math.min(createdThisMonth ?? 0, 3)} of 3 invoices used this month`}
           </p>
           {profile && !profile.company_name ? (
             <p className="mt-1 text-ink-soft">
-              Avant votre première facture, <Link href="/settings">indiquez vos coordonnées</Link>.
+              Before your first invoice, <Link href="/settings">add your business details</Link>.
             </p>
           ) : null}
         </div>
-        <PrimaryLink href="/invoices/new">Nouvelle facture</PrimaryLink>
+        <PrimaryLink href="/invoices/new">New invoice</PrimaryLink>
       </div>
 
       {/* Trois montants côte à côte, séparés par des filets verticaux (DESIGN.md). */}
       <div className="mb-12 flex flex-wrap border-t border-b border-t-rule-strong border-b-border">
-        <Amount label="Encaissé ce mois-ci" cents={totals.paidThisMonth} first />
-        <Amount label="En attente" cents={totals.pending} />
+        <Amount label="Received this month" cents={totals.paidThisMonth} first />
+        <Amount label="Pending" cents={totals.pending} />
         <Amount
-          label={`En retard${totals.overdueCount ? ` · ${totals.overdueCount} facture${totals.overdueCount > 1 ? "s" : ""}` : ""}`}
+          label={`Overdue${totals.overdueCount ? ` · ${totals.overdueCount} invoice${totals.overdueCount > 1 ? "s" : ""}` : ""}`}
           cents={totals.overdue}
           alert={totals.overdueCount > 0}
         />
       </div>
 
       <div className="mb-2 flex items-baseline justify-between gap-4">
-        <h2 className="text-2xl">Dernières factures</h2>
-        {invoices.length > 0 ? <Link href="/invoices">Toutes les factures</Link> : null}
+        <h2 className="text-2xl">Latest invoices</h2>
+        {invoices.length > 0 ? <Link href="/invoices">All invoices</Link> : null}
       </div>
       {invoices.length > 0 ? (
         <InvoiceTable invoices={invoices.slice(0, 5)} />
       ) : (
         <p className="border-t border-rule-strong pt-4 text-ink-soft">
-          Aucune facture pour l&apos;instant. Commencez par <Link href="/clients/new">ajouter un client</Link>.
+          No invoices yet. Start by <Link href="/clients/new">adding a client</Link>.
         </p>
       )}
     </>

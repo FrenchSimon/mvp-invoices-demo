@@ -28,6 +28,6 @@ export async function GET(request: NextRequest) {
   if (ok) return NextResponse.redirect(new URL(next, origin));
 
   const failed = new URL("/login", origin);
-  failed.searchParams.set("error", "lien");
+  failed.searchParams.set("error", "link");
   return NextResponse.redirect(failed);
 }

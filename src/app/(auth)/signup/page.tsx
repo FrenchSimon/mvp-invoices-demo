@@ -3,16 +3,16 @@ import Link from "next/link";
 import { AuthCard } from "../auth-card";
 import { SignupForm } from "./signup-form";
 
-export const metadata: Metadata = { title: "Créer un compte" };
+export const metadata: Metadata = { title: "Create an account" };
 
 export default function SignupPage() {
   return (
     <AuthCard
-      title="Créer un compte"
-      intro="Gratuit pour 3 factures par mois. Sans carte bancaire."
+      title="Create an account"
+      intro="Free for 3 invoices a month. No credit card."
       footer={
         <p>
-          Déjà un compte ? <Link href="/login">Se connecter</Link>
+          Already have an account? <Link href="/login">Log in</Link>
         </p>
       }
     >

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Brand } from "@/components/brand";
 import { NotFoundView } from "@/components/not-found-view";
 
-export const metadata: Metadata = { title: "Page introuvable" };
+export const metadata: Metadata = { title: "Page not found" };
 
 // Adresse qui ne correspond à aucune page : pas de barre d'onglets, juste le logo.
 export default function NotFound() {

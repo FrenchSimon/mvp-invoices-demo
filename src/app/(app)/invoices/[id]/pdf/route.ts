@@ -11,10 +11,10 @@ export async function GET(_request: NextRequest, ctx: RouteContext<"/invoices/[i
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return new Response("Connexion requise.", { status: 401 });
+  if (!user) return new Response("Login required.", { status: 401 });
 
   const data = await loadFullInvoice(supabase, id, { withLogo: true });
-  if (!data) return new Response("Facture introuvable.", { status: 404 });
+  if (!data) return new Response("Invoice not found.", { status: 404 });
 
   const pdf = await renderInvoicePdf(data);
   return new Response(new Uint8Array(pdf), {

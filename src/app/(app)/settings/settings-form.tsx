@@ -15,31 +15,31 @@ export function SettingsForm({ profile }: { profile: Profile }) {
       <Field
         id="company_name"
         name="company_name"
-        label="Nom de l'entreprise"
-        hint="Votre nom ou celui de votre entreprise, tel qu'il doit apparaître sur les factures."
+        label="Business name"
+        hint="Your name or your company's, as it should appear on invoices."
         required
         defaultValue={values.company_name}
       />
       <TextAreaField
         id="address"
         name="address"
-        label="Adresse et mentions"
+        label="Address and legal details"
         rows={4}
-        placeholder={"12 rue des Lilas\n69003 Lyon\nSIRET 123 456 789 00012"}
+        placeholder={"4 Harbour Road\nDublin D02 X285\nCompany No. 654321"}
         defaultValue={values.address}
       />
       <p className="-mt-3 text-sm text-muted-foreground">
-        Une information par ligne. Pensez à votre SIRET : il doit figurer sur chaque facture.
+        One item per line. Include your company registration number if your country requires it on invoices.
       </p>
       <Field
         id="vat_number"
         name="vat_number"
-        label="N° de TVA intracommunautaire (facultatif)"
+        label="VAT number (optional)"
         defaultValue={values.vat_number}
       />
       <FormMessage error={state.error} message={state.message} />
       <div>
-        <SubmitButton pending={pending}>Enregistrer</SubmitButton>
+        <SubmitButton pending={pending}>Save</SubmitButton>
       </div>
     </form>
   );

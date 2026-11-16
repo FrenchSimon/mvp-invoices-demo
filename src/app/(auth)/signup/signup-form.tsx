@@ -26,14 +26,14 @@ export function SignupForm() {
         id="password"
         name="password"
         type="password"
-        label="Mot de passe"
-        hint="8 caractères au moins."
+        label="Password"
+        hint="At least 8 characters."
         autoComplete="new-password"
         minLength={8}
         required
       />
       <FormMessage error={state.error} />
-      <SubmitButton pending={pending} className="w-full">Créer mon compte</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Create my account</SubmitButton>
     </form>
   );
 }

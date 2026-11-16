@@ -7,11 +7,11 @@ import { setInvoiceStatus } from "./actions";
 
 const ACTIONS: Record<InvoiceStatus, { status: "sent" | "paid"; label: string }[]> = {
   draft: [
-    { status: "sent", label: "Marquer comme envoyée" },
-    { status: "paid", label: "Marquer comme payée" },
+    { status: "sent", label: "Mark as sent" },
+    { status: "paid", label: "Mark as paid" },
   ],
-  sent: [{ status: "paid", label: "Marquer comme payée" }],
-  paid: [{ status: "sent", label: "Annuler le paiement" }],
+  sent: [{ status: "paid", label: "Mark as paid" }],
+  paid: [{ status: "sent", label: "Undo payment" }],
 };
 
 // Changements de statut : des liens dans la colonne de droite (DESIGN.md).
@@ -21,7 +21,7 @@ export function StatusActions({ id, status, disabled }: { id: string; status: In
   return (
     <form action={action}>
       <input type="hidden" name="id" value={id} />
-      <div className="mb-2 text-sm text-muted-foreground">Changer le statut</div>
+      <div className="mb-2 text-sm text-muted-foreground">Change status</div>
       {ACTIONS[status].map((a) => (
         <button
           key={a.status}
@@ -36,7 +36,7 @@ export function StatusActions({ id, status, disabled }: { id: string; status: In
       ))}
       {status === "draft" ? (
         <p className="mt-2 text-sm text-muted-foreground">
-          Une fois envoyée, la facture ne peut plus être modifiée.
+          Once sent, the invoice can no longer be edited.
         </p>
       ) : null}
       <FormMessage error={state.error} />

@@ -34,14 +34,14 @@ export function DraftWorkspace({
           badge={badge}
           onDirtyChange={setDirty}
           sendButton={
-            <EmailButton id={initial.id} to={recipient} clientId={initial.clientId} label="Envoyer par email" inForm />
+            <EmailButton id={initial.id} to={recipient} clientId={initial.clientId} label="Send by email" inForm />
           }
         />
       </Sheet>
       <aside className="min-w-0 flex-[1_1_220px]">
         <StatusActions id={initial.id} status="draft" disabled={dirty} />
         {dirty ? (
-          <p className="mt-2 text-sm text-muted-foreground">Enregistrez d&apos;abord le brouillon.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Save the draft first.</p>
         ) : null}
       </aside>
     </div>

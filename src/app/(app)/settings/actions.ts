@@ -18,14 +18,14 @@ export async function saveSettings(_prev: SettingsState, formData: FormData): Pr
     address: String(formData.get("address") ?? "").trim(),
     vat_number: String(formData.get("vat_number") ?? "").trim(),
   };
-  if (!values.company_name) return { error: "Indiquez le nom de votre entreprise.", values };
+  if (!values.company_name) return { error: "Enter your business name.", values };
 
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("profiles").update(values).eq("id", user.id);
-  if (error) return { error: "Les réglages n'ont pas pu être enregistrés. Réessayez.", values };
+  if (error) return { error: "Your settings couldn't be saved. Try again.", values };
 
   refresh();
-  return { message: "Réglages enregistrés.", values };
+  return { message: "Settings saved.", values };
 }
 
 export type LogoState = { error?: string; message?: string };
@@ -42,16 +42,16 @@ function logoExtension(bytes: Uint8Array): "png" | "jpg" | null {
 // l'envoi d'un logo par un compte gratuit (règles de l'espace « logos »).
 export async function uploadLogo(_prev: LogoState, formData: FormData): Promise<LogoState> {
   const file = formData.get("logo");
-  if (!(file instanceof File) || file.size === 0) return { error: "Choisissez une image." };
-  if (file.size > LOGO_MAX_BYTES) return { error: "Le logo dépasse 500 Ko. Choisissez une image plus légère." };
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose an image." };
+  if (file.size > LOGO_MAX_BYTES) return { error: "The logo is over 500 KB. Choose a smaller image." };
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const ext = logoExtension(bytes);
-  if (!ext) return { error: "Le logo doit être une image PNG ou JPEG." };
+  if (!ext) return { error: "The logo must be a PNG or JPEG image." };
 
   const { supabase, user } = await requireUser();
   const { data: profile } = await supabase.from("profiles").select("plan, logo_path").eq("id", user.id).single();
-  if (profile?.plan !== "pro") return { error: "Le logo sur le PDF est réservé à la formule Pro." };
+  if (profile?.plan !== "pro") return { error: "Your logo on the PDF is a Pro plan feature." };
 
   // Nouveau nom à chaque envoi : l'ancien fichier n'est supprimé qu'une fois le nouveau enregistré.
   const path = `${user.id}/logo-${Date.now()}.${ext}`;
@@ -60,18 +60,18 @@ export async function uploadLogo(_prev: LogoState, formData: FormData): Promise<
     .upload(path, bytes, { contentType: ext === "png" ? "image/png" : "image/jpeg" });
   if (uploadError) {
     console.error("[settings] logo upload", uploadError);
-    return { error: "Le logo n'a pas pu être envoyé. Réessayez." };
+    return { error: "The logo couldn't be uploaded. Try again." };
   }
 
   const { error } = await supabase.from("profiles").update({ logo_path: path }).eq("id", user.id);
   if (error) {
     await supabase.storage.from("logos").remove([path]);
-    return { error: "Le logo n'a pas pu être enregistré. Réessayez." };
+    return { error: "The logo couldn't be saved. Try again." };
   }
   if (profile.logo_path) await supabase.storage.from("logos").remove([profile.logo_path]);
 
   refresh();
-  return { message: "Logo enregistré. Il apparaît sur vos prochains PDF." };
+  return { message: "Logo saved. It will appear on your next PDFs." };
 }
 
 export async function removeLogo(): Promise<LogoState> {
@@ -80,9 +80,9 @@ export async function removeLogo(): Promise<LogoState> {
   if (!profile?.logo_path) return {};
 
   const { error } = await supabase.from("profiles").update({ logo_path: null }).eq("id", user.id);
-  if (error) return { error: "Le logo n'a pas pu être retiré. Réessayez." };
+  if (error) return { error: "The logo couldn't be removed. Try again." };
   await supabase.storage.from("logos").remove([profile.logo_path]);
 
   refresh();
-  return { message: "Logo retiré." };
+  return { message: "Logo removed." };
 }

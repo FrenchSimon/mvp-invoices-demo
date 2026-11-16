@@ -7,12 +7,12 @@ import type { Profile } from "@/lib/invoices/types";
 import { LogoForm } from "./logo-form";
 import { SettingsForm } from "./settings-form";
 
-export const metadata: Metadata = { title: "Réglages" };
+export const metadata: Metadata = { title: "Settings" };
 
 export default function SettingsPage() {
   return (
     <div className="max-w-2xl">
-      <PageHeader title="Réglages" intro="Ces coordonnées apparaissent en haut de chaque facture." />
+      <PageHeader title="Settings" intro="These details appear at the top of every invoice." />
       <Suspense fallback={<LoadingLine />}>
         <Settings />
       </Suspense>
@@ -48,13 +48,13 @@ async function Settings() {
           <LogoForm previewUrl={logoUrl} />
         ) : (
           <p className="text-ink-soft">
-            Votre logo sur les factures PDF fait partie de la formule Pro. <Link href="/pro">Passer à Pro</Link>
+            Your logo on PDF invoices is part of the Pro plan. <Link href="/pro">Upgrade to Pro</Link>
           </p>
         )}
       </Sheet>
       <p className="mt-6 text-sm text-muted-foreground">
-        Compte : {user.email} · Formule {isPro ? "Pro" : "gratuite"} ·{" "}
-        <Link href="/pro">{isPro ? "Gérer mon abonnement" : "Passer à Pro"}</Link>
+        Account: {user.email} · {isPro ? "Pro" : "Free"} plan ·{" "}
+        <Link href="/pro">{isPro ? "Manage my subscription" : "Upgrade to Pro"}</Link>
       </p>
     </>
   );

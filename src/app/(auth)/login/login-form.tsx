@@ -30,16 +30,16 @@ export function LoginForm() {
           id="password"
           name="password"
           type="password"
-          label="Mot de passe"
+          label="Password"
           autoComplete="current-password"
           required
         />
         <Link href="/forgot-password" className="self-start text-sm">
-          Mot de passe oublié ?
+          Forgot password?
         </Link>
       </div>
       <FormMessage error={state.error} message={state.message} />
-      <SubmitButton pending={pending} className="w-full">Se connecter</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Log in</SubmitButton>
     </form>
   );
 }

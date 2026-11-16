@@ -11,11 +11,11 @@ export function NextInput() {
 }
 
 export function LinkErrorNotice() {
-  if (useSearchParams().get("error") !== "lien") return null;
+  if (useSearchParams().get("error") !== "link") return null;
   return (
     <p role="alert" className="mb-5 text-sm text-destructive">
-      Ce lien n&apos;est plus valable (déjà utilisé, expiré ou ouvert dans un autre navigateur).
-      Connectez-vous, ou demandez un nouveau lien.
+      This link is no longer valid (already used, expired or opened in another browser). Log in, or
+      request a new link.
     </p>
   );
 }

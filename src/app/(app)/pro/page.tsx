@@ -6,14 +6,14 @@ import { syncPlanFromStripe } from "@/lib/stripe/server";
 import { requireUser } from "@/lib/supabase/user";
 import { CheckoutButton, PortalButton } from "./pro-buttons";
 
-export const metadata: Metadata = { title: "Formule Pro" };
+export const metadata: Metadata = { title: "Pro plan" };
 
 // Ce que chaque formule permet (checklist, points 8 à 10).
 const ROWS = [
-  { label: "Factures par mois", free: `${FREE_MONTHLY_INVOICES}`, pro: "Illimitées" },
-  { label: "PDF et envoi par email", free: "Oui", pro: "Oui" },
-  { label: "Votre logo sur le PDF", free: "Non", pro: "Oui" },
-  { label: "Prix", free: "Gratuit", pro: "9 € par mois" },
+  { label: "Invoices per month", free: `${FREE_MONTHLY_INVOICES}`, pro: "Unlimited" },
+  { label: "PDF and email sending", free: "Yes", pro: "Yes" },
+  { label: "Your logo on the PDF", free: "No", pro: "Yes" },
+  { label: "Price", free: "Free", pro: "€9 per month" },
 ] as const;
 
 export default function ProPage({ searchParams }: PageProps<"/pro">) {
@@ -27,13 +27,13 @@ export default function ProPage({ searchParams }: PageProps<"/pro">) {
 }
 
 async function Pro({ searchParams }: { searchParams: PageProps<"/pro">["searchParams"] }) {
-  const { paiement } = await searchParams;
+  const { payment } = await searchParams;
   const { supabase, user } = await requireUser();
 
   // Retour de la page de paiement : on n'attend pas le webhook, on demande
   // directement à Stripe où en est l'abonnement.
   let justPaid = false;
-  if (paiement === "ok") {
+  if (payment === "success") {
     const { data } = await supabase.from("profiles").select("stripe_customer_id").eq("id", user.id).single();
     if (data?.stripe_customer_id) {
       try {
@@ -50,22 +50,22 @@ async function Pro({ searchParams }: { searchParams: PageProps<"/pro">["searchPa
   return (
     <>
       <PageHeader
-        title={isPro ? "Votre formule Pro" : "Passer à Pro"}
+        title={isPro ? "Your Pro plan" : "Upgrade to Pro"}
         intro={
           isPro
-            ? "Factures illimitées et logo sur vos PDF."
-            : `Ce mois-ci : ${Math.min(usage.usedThisMonth, FREE_MONTHLY_INVOICES)} facture${usage.usedThisMonth > 1 ? "s" : ""} sur ${FREE_MONTHLY_INVOICES} avec la formule gratuite.`
+            ? "Unlimited invoices and your logo on your PDFs."
+            : `This month: ${Math.min(usage.usedThisMonth, FREE_MONTHLY_INVOICES)} of ${FREE_MONTHLY_INVOICES} invoices used on the Free plan.`
         }
       />
 
       {justPaid ? (
         <p role="status" className="mb-6 rounded-md bg-status-paid px-3 py-2 text-status-paid-foreground">
-          Paiement reçu : vous êtes en Pro. Merci !
+          Payment received: you&apos;re on Pro. Thank you!
         </p>
       ) : null}
-      {paiement === "ok" && !isPro ? (
+      {payment === "success" && !isPro ? (
         <p role="status" className="mb-6 text-ink-soft">
-          Le paiement est en cours de confirmation. Rechargez la page dans un instant.
+          Your payment is being confirmed. Reload the page in a moment.
         </p>
       ) : null}
 
@@ -73,10 +73,10 @@ async function Pro({ searchParams }: { searchParams: PageProps<"/pro">["searchPa
         <thead>
           <tr className="border-b border-border text-sm text-muted-foreground">
             <th className="py-3 pr-4 font-semibold">
-              <span className="sr-only">Fonction</span>
+              <span className="sr-only">Feature</span>
             </th>
-            <th className="py-3 pr-4 font-semibold">Gratuite{isPro ? "" : " (la vôtre)"}</th>
-            <th className="py-3 font-semibold">Pro{isPro ? " (la vôtre)" : ""}</th>
+            <th className="py-3 pr-4 font-semibold">Free{isPro ? "" : " (yours)"}</th>
+            <th className="py-3 font-semibold">Pro{isPro ? " (yours)" : ""}</th>
           </tr>
         </thead>
         <tbody>
@@ -96,14 +96,14 @@ async function Pro({ searchParams }: { searchParams: PageProps<"/pro">["searchPa
         <>
           <PortalButton />
           <p className="mt-4 text-sm text-muted-foreground">
-            Changer de carte, voir vos reçus ou résilier : tout se fait sur la page sécurisée de Stripe.
+            Change your card, see your receipts or cancel: it all happens on Stripe&apos;s secure page.
           </p>
         </>
       ) : (
         <>
           <CheckoutButton />
           <p className="mt-4 text-sm text-muted-foreground">
-            Paiement par carte sur la page sécurisée de Stripe. Sans engagement : résiliable à tout moment.
+            Card payment on Stripe&apos;s secure page. No commitment: cancel anytime.
           </p>
         </>
       )}

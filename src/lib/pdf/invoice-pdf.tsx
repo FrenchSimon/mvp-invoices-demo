@@ -65,7 +65,7 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
   const rate = summary.vat_rate;
 
   return (
-    <Document title={`Facture ${invoice.number}`} author={company.company_name || company.email} language="fr">
+    <Document title={`Invoice ${invoice.number}`} author={company.company_name || company.email} language="en">
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           <View style={s.company}>
@@ -74,12 +74,12 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
             <Text style={s.companyName}>{company.company_name || company.email}</Text>
             {company.address ? <Text style={s.soft}>{company.address}</Text> : null}
             {company.email ? <Text style={s.soft}>{company.email}</Text> : null}
-            {company.vat_number ? <Text style={s.soft}>N° TVA : {company.vat_number}</Text> : null}
+            {company.vat_number ? <Text style={s.soft}>VAT no. {company.vat_number}</Text> : null}
           </View>
           <View style={s.titleBlock}>
-            <Text style={s.title}>Facture</Text>
+            <Text style={s.title}>Invoice</Text>
             <View style={s.meta}>
-              <Text style={s.metaLabel}>Numéro</Text>
+              <Text style={s.metaLabel}>Number</Text>
               <Text style={[s.metaValue, s.strong]}>{invoice.number}</Text>
             </View>
             <View style={s.meta}>
@@ -87,24 +87,24 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
               <Text style={s.metaValue}>{formatDate(invoice.issue_date)}</Text>
             </View>
             <View style={s.meta}>
-              <Text style={s.metaLabel}>Échéance</Text>
+              <Text style={s.metaLabel}>Due date</Text>
               <Text style={s.metaValue}>{formatDate(invoice.due_date)}</Text>
             </View>
           </View>
         </View>
 
         <View style={s.billTo}>
-          <Text style={s.label}>Facturé à</Text>
+          <Text style={s.label}>Bill to</Text>
           <Text style={s.strong}>{client.name}</Text>
           {client.address ? <Text style={s.soft}>{client.address}</Text> : null}
-          {client.vat_number ? <Text style={s.soft}>N° TVA : {client.vat_number}</Text> : null}
+          {client.vat_number ? <Text style={s.soft}>VAT no. {client.vat_number}</Text> : null}
         </View>
 
         <View style={s.tableHead} fixed>
           <Text style={s.cDesc}>Description</Text>
-          <Text style={s.cQty}>Qté</Text>
-          <Text style={s.cPrice}>Prix unitaire HT</Text>
-          <Text style={s.cTotal}>Total HT</Text>
+          <Text style={s.cQty}>Qty</Text>
+          <Text style={s.cPrice}>Unit price</Text>
+          <Text style={s.cTotal}>Amount</Text>
         </View>
         {items.map((it) => (
           <View key={it.id} style={s.row} wrap={false}>
@@ -123,15 +123,15 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
           </View>
           <View style={s.totals}>
             <View style={s.totalLine}>
-              <Text>Total HT</Text>
+              <Text>Subtotal</Text>
               <Text>{money(summary.subtotal_cents)}</Text>
             </View>
             <View style={[s.totalLine, s.soft]}>
-              <Text>{rate === 0 ? "TVA" : `TVA ${plain(formatRate(rate))}`}</Text>
+              <Text>{rate === 0 ? "VAT" : `VAT ${plain(formatRate(rate))}`}</Text>
               <Text>{money(summary.vat_cents)}</Text>
             </View>
             <View style={s.grandTotal}>
-              <Text>Total TTC</Text>
+              <Text>Total</Text>
               <Text>{money(summary.total_cents)}</Text>
             </View>
             {rate === 0 ? <Text style={[s.muted, { marginTop: 6 }]}>{VAT_EXEMPTION_NOTE}</Text> : null}
@@ -139,9 +139,8 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
         </View>
 
         <Text style={s.footer} fixed>
-          Payable au plus tard le {formatDate(invoice.due_date)}. En cas de retard, pénalités au taux de trois fois
-          le taux d&apos;intérêt légal et indemnité forfaitaire de 40 € pour frais de recouvrement (art. L441-10 du
-          Code de commerce). Pas d&apos;escompte pour paiement anticipé.
+          Payment due by {formatDate(invoice.due_date)}. Late payments may incur statutory interest and a fixed
+          €40 recovery fee (EU Late Payment Directive 2011/7/EU). No discount for early payment.
         </Text>
       </Page>
     </Document>
@@ -153,5 +152,5 @@ export function renderInvoicePdf(data: FullInvoice): Promise<Buffer> {
 }
 
 export function invoiceFileName(number: string) {
-  return `facture-${number}.pdf`;
+  return `invoice-${number}.pdf`;
 }

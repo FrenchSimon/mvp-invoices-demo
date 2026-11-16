@@ -18,12 +18,12 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function dbErrorMessage(message: string): string {
   if (message.includes("FREE_PLAN_LIMIT")) {
-    return "Vous avez créé vos 3 factures gratuites ce mois-ci.";
+    return "You've used your 3 free invoices this month.";
   }
-  if (message.includes("INVOICE_LOCKED")) return "Cette facture a été envoyée : elle ne peut plus être modifiée.";
-  if (message.includes("INVOICE_NOT_FOUND")) return "Cette facture n'existe plus.";
-  if (message.includes("INVOICE_NO_ITEMS")) return "Ajoutez au moins une ligne.";
-  return "La facture n'a pas pu être enregistrée. Réessayez.";
+  if (message.includes("INVOICE_LOCKED")) return "This invoice has been sent and can no longer be edited.";
+  if (message.includes("INVOICE_NOT_FOUND")) return "This invoice no longer exists.";
+  if (message.includes("INVOICE_NO_ITEMS")) return "Add at least one line.";
+  return "The invoice couldn't be saved. Try again.";
 }
 
 // Crée un brouillon (pas d'id) ou modifie un brouillon existant.
@@ -39,17 +39,17 @@ export async function saveInvoice(
   const vatRate = Number(formData.get("vat_rate"));
   const notes = String(formData.get("notes") ?? "").trim();
 
-  if (!clientId) return { error: "Choisissez un client." };
-  if (!ISO_DATE.test(issueDate) || !ISO_DATE.test(dueDate)) return { error: "Indiquez des dates valides." };
-  if (dueDate < issueDate) return { error: "L'échéance ne peut pas être avant la date d'émission." };
-  if (!(VAT_RATES as readonly number[]).includes(vatRate)) return { error: "Taux de TVA invalide." };
+  if (!clientId) return { error: "Choose a client." };
+  if (!ISO_DATE.test(issueDate) || !ISO_DATE.test(dueDate)) return { error: "Enter valid dates." };
+  if (dueDate < issueDate) return { error: "The due date can't be before the issue date." };
+  if (!(VAT_RATES as readonly number[]).includes(vatRate)) return { error: "Invalid VAT rate." };
 
   let raw: RawLine[];
   try {
     raw = JSON.parse(String(formData.get("items") ?? "[]"));
     if (!Array.isArray(raw)) throw new Error();
   } catch {
-    return { error: "Les lignes de la facture sont illisibles. Rechargez la page." };
+    return { error: "The invoice lines couldn't be read. Reload the page." };
   }
 
   const items = [];
@@ -61,20 +61,20 @@ export async function saveInvoice(
     if (!description && !priceText && (!quantityText || quantityText === "1")) continue;
 
     const n = index + 1;
-    if (!description) return { error: `Ligne ${n} : ajoutez une description.` };
+    if (!description) return { error: `Line ${n}: add a description.` };
     const quantity = parseDecimal(quantityText);
     if (quantity === null || quantity <= 0 || quantity >= 100_000_000) {
-      return { error: `Ligne ${n} : la quantité doit être un nombre positif.` };
+      return { error: `Line ${n}: the quantity must be a positive number.` };
     }
     const unitPriceCents = parseEurosToCents(priceText);
-    if (unitPriceCents === null) return { error: `Ligne ${n} : indiquez un prix, par exemple 150,00.` };
+    if (unitPriceCents === null) return { error: `Line ${n}: enter a price, for example 150.00.` };
     items.push({
       description,
       quantity: Math.round(quantity * 100) / 100,
       unit_price_cents: unitPriceCents,
     });
   }
-  if (items.length === 0) return { error: "Ajoutez au moins une ligne." };
+  if (items.length === 0) return { error: "Add at least one line." };
 
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("save_invoice", {
@@ -90,7 +90,7 @@ export async function saveInvoice(
 
   if (!id) redirect(`/invoices/${data as string}`);
   refresh();
-  return { message: "Brouillon enregistré." };
+  return { message: "Draft saved." };
 }
 
 export type StatusState = { error?: string };
@@ -100,12 +100,12 @@ export type StatusState = { error?: string };
 export async function setInvoiceStatus(_prev: StatusState, formData: FormData): Promise<StatusState> {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
-  if (status !== "sent" && status !== "paid") return { error: "Statut invalide." };
+  if (status !== "sent" && status !== "paid") return { error: "Invalid status." };
 
   const { supabase } = await requireUser();
   const { data, error } = await supabase.from("invoices").update({ status }).eq("id", id).select("id");
   if (error) return { error: dbErrorMessage(error.message) };
-  if (!data?.length) return { error: "Cette facture n'existe plus." };
+  if (!data?.length) return { error: "This invoice no longer exists." };
 
   refresh();
   return {};
@@ -122,11 +122,11 @@ export async function emailInvoice(_prev: EmailState, formData: FormData): Promi
   const { supabase } = await requireUser();
 
   const data = await loadFullInvoice(supabase, id, { withLogo: true });
-  if (!data) return { error: "Cette facture n'existe plus." };
-  if (data.invoice.status === "paid") return { error: "Cette facture est déjà payée." };
-  if (data.items.length === 0) return { error: "Ajoutez au moins une ligne." };
+  if (!data) return { error: "This invoice no longer exists." };
+  if (data.invoice.status === "paid") return { error: "This invoice is already paid." };
+  if (data.items.length === 0) return { error: "Add at least one line." };
   const to = data.client.email.trim();
-  if (!to) return { error: "Ce client n'a pas d'email. Ajoutez-le sur sa fiche." };
+  if (!to) return { error: "This client has no email. Add one on their page." };
 
   const sent = await sendInvoiceEmail(data, to);
   if (!sent.ok) return { error: sent.error };
@@ -135,11 +135,11 @@ export async function emailInvoice(_prev: EmailState, formData: FormData): Promi
     const { error } = await supabase.from("invoices").update({ status: "sent" }).eq("id", id);
     if (error) {
       refresh();
-      return { error: `Email envoyé à ${to}, mais le statut n'a pas pu passer à « envoyée ». Faites-le à droite.` };
+      return { error: `Email sent to ${to}, but the status couldn't be changed to “Sent”. Do it on the right.` };
     }
     // Le brouillon devient une facture figée : la page change de vue, le message passe par l'adresse.
-    redirect(`/invoices/${id}?email=envoye`);
+    redirect(`/invoices/${id}?email=sent`);
   }
   refresh();
-  return { message: `Facture envoyée à ${to}.` };
+  return { message: `Invoice sent to ${to}.` };
 }

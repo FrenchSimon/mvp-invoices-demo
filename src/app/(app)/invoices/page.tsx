@@ -5,12 +5,12 @@ import { requireUser } from "@/lib/supabase/user";
 import { SUMMARY_COLUMNS, toSummary } from "@/lib/invoices/types";
 import { InvoiceTable } from "./invoice-table";
 
-export const metadata: Metadata = { title: "Factures" };
+export const metadata: Metadata = { title: "Invoices" };
 
 export default function InvoicesPage() {
   return (
     <>
-      <PageHeader title="Factures" action={<PrimaryLink href="/invoices/new">Nouvelle facture</PrimaryLink>} />
+      <PageHeader title="Invoices" action={<PrimaryLink href="/invoices/new">New invoice</PrimaryLink>} />
       <Suspense fallback={<LoadingLine />}>
         <InvoiceList />
       </Suspense>
@@ -26,10 +26,10 @@ async function InvoiceList() {
     .order("issue_date", { ascending: false })
     .order("number", { ascending: false });
 
-  if (error) return <p role="alert" className="text-destructive">Les factures n&apos;ont pas pu être chargées.</p>;
+  if (error) return <p role="alert" className="text-destructive">Invoices couldn&apos;t be loaded.</p>;
   const invoices = (data ?? []).map(toSummary);
   if (invoices.length === 0) {
-    return <p className="text-ink-soft">Aucune facture pour l&apos;instant.</p>;
+    return <p className="text-ink-soft">No invoices yet.</p>;
   }
   return <InvoiceTable invoices={invoices} />;
 }

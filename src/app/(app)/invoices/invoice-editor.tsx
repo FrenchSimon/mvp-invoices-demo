@@ -108,7 +108,7 @@ export function InvoiceEditor({
       <div className="mb-8 flex flex-wrap justify-between gap-4">
         <div>
           <Link href="/invoices" className="text-sm">
-            ← Factures
+            ← Invoices
           </Link>
           <h1 className="mt-1 text-3xl sm:text-4xl">{title}</h1>
         </div>
@@ -116,11 +116,11 @@ export function InvoiceEditor({
           {badge}
           {initial.id ? (
             dirty ? (
-              <span className="text-sm text-muted-foreground">Enregistrez pour télécharger le PDF</span>
+              <span className="text-sm text-muted-foreground">Save to download the PDF</span>
             ) : (
               <>
                 <SecondaryLink href={`/invoices/${initial.id}/pdf`} download>
-                  Télécharger le PDF
+                  Download PDF
                 </SecondaryLink>
                 {sendButton}
               </>
@@ -141,7 +141,7 @@ export function InvoiceEditor({
           onChange={(e) => setClientId(e.target.value)}
         >
           <option value="" disabled>
-            Choisir…
+            Choose…
           </option>
           {clients.map((c) => (
             <option key={c.id} value={c.id}>
@@ -153,7 +153,7 @@ export function InvoiceEditor({
           id="issue_date"
           name="issue_date"
           type="date"
-          label="Date d'émission"
+          label="Issue date"
           required
           value={issueDate}
           onChange={(e) => setIssueDate(e.target.value)}
@@ -162,7 +162,7 @@ export function InvoiceEditor({
           id="due_date"
           name="due_date"
           type="date"
-          label="Échéance"
+          label="Due date"
           required
           min={issueDate}
           value={dueDate}
@@ -177,9 +177,9 @@ export function InvoiceEditor({
           className="hidden grid-cols-[minmax(0,1fr)_80px_130px_120px_44px] gap-3 border-b border-rule-strong pb-2 text-sm font-semibold text-muted-foreground sm:grid"
         >
           <span>Description</span>
-          <span className="text-right">Qté</span>
-          <span className="text-right">Prix unitaire HT</span>
-          <span className="text-right">Total HT</span>
+          <span className="text-right">Qty</span>
+          <span className="text-right">Unit price</span>
+          <span className="text-right">Amount</span>
           <span />
         </div>
         <div className="border-t border-rule-strong sm:border-t-0">
@@ -189,7 +189,7 @@ export function InvoiceEditor({
             className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-end gap-x-3 sm:items-center gap-y-2 border-b border-border py-3 sm:grid-cols-[minmax(0,1fr)_80px_130px_120px_44px] sm:py-2"
           >
             <input
-              aria-label={`Description, ligne ${index + 1}`}
+              aria-label={`Description, line ${index + 1}`}
               placeholder="Description"
               value={line.description}
               onChange={(e) => updateLine(line.key, { description: e.target.value })}
@@ -197,34 +197,34 @@ export function InvoiceEditor({
             />
             {/* Sur téléphone, l'en-tête des colonnes est masqué : libellé au-dessus du champ. */}
             <label className="flex min-w-0 flex-col gap-1">
-              <span className="text-sm text-muted-foreground sm:hidden">Qté</span>
+              <span className="text-sm text-muted-foreground sm:hidden">Qty</span>
               <input
-                aria-label={`Quantité, ligne ${index + 1}`}
+                aria-label={`Quantity, line ${index + 1}`}
                 inputMode="decimal"
-                placeholder="Qté"
+                placeholder="Qty"
                 value={line.quantity}
                 onChange={(e) => updateLine(line.key, { quantity: e.target.value })}
                 className="w-full min-w-0 h-10 rounded-md border border-input bg-card px-3 text-right tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
               />
             </label>
             <label className="flex min-w-0 flex-col gap-1">
-              <span className="text-sm text-muted-foreground sm:hidden">Prix unitaire HT</span>
+              <span className="text-sm text-muted-foreground sm:hidden">Unit price</span>
               <input
-                aria-label={`Prix unitaire HT, ligne ${index + 1}`}
+                aria-label={`Unit price, line ${index + 1}`}
                 inputMode="decimal"
-                placeholder="0,00"
+                placeholder="0.00"
                 value={line.price}
                 onChange={(e) => updateLine(line.key, { price: e.target.value })}
                 className="w-full min-w-0 h-10 rounded-md border border-input bg-card px-3 text-right tabular-nums outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
               />
             </label>
             <span className="self-center text-right tabular-nums sm:pr-0">
-              <span className="text-sm text-muted-foreground sm:hidden">Total HT </span>
+              <span className="text-sm text-muted-foreground sm:hidden">Amount </span>
               {formatMoney(lineTotalCents(amounts[index]))}
             </span>
             <button
               type="button"
-              aria-label={`Supprimer la ligne ${index + 1}`}
+              aria-label={`Remove line ${index + 1}`}
               onClick={() => removeLine(line.key)}
               className="size-11 self-center justify-self-end text-xl text-muted-foreground hover:text-destructive"
             >
@@ -239,7 +239,7 @@ export function InvoiceEditor({
         onClick={() => setLines((all) => [...all, newLine()])}
         className="mt-3 py-2.5 font-semibold text-destructive hover:underline"
       >
-        + Ajouter une ligne
+        + Add a line
       </button>
 
       <div className="mt-6 flex flex-wrap justify-between gap-6 border-t border-border pt-5">
@@ -247,21 +247,21 @@ export function InvoiceEditor({
           <SelectField
             id="vat_rate"
             name="vat_rate"
-            label="Taux de TVA"
+            label="VAT rate"
             value={vatRate}
             onChange={(e) => setVatRate(e.target.value)}
           >
             {VAT_RATES.map((r) => (
               <option key={r} value={String(r)}>
-                {r === 0 ? "0 % (TVA non applicable)" : formatRate(r)}
+                {r === 0 ? "0% (no VAT)" : formatRate(r)}
               </option>
             ))}
           </SelectField>
           <TextAreaField
             id="notes"
             name="notes"
-            label="Note sur la facture (facultatif)"
-            placeholder="Conditions de paiement, IBAN, remerciements…"
+            label="Note on the invoice (optional)"
+            placeholder="Payment terms, IBAN, a thank-you…"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
@@ -271,9 +271,9 @@ export function InvoiceEditor({
 
       <div className="mt-8 flex flex-wrap items-center justify-end gap-4">
         <FormMessage error={state.error} message={dirty ? undefined : state.message} />
-        {state.upgrade ? <Link href="/pro">Passer à Pro pour des factures illimitées</Link> : null}
+        {state.upgrade ? <Link href="/pro">Upgrade to Pro for unlimited invoices</Link> : null}
         <SubmitButton pending={pending} variant={initial.id ? "outline" : "default"}>
-          {initial.id ? "Enregistrer le brouillon" : "Créer la facture"}
+          {initial.id ? "Save draft" : "Create invoice"}
         </SubmitButton>
       </div>
     </form>
@@ -284,15 +284,15 @@ export function Totals({ subtotal, vat, total, rate }: { subtotal: number; vat: 
   return (
     <dl className="w-full max-w-xs self-end tabular-nums sm:min-w-64">
       <div className="flex justify-between py-1">
-        <dt>Total HT</dt>
+        <dt>Subtotal</dt>
         <dd>{formatMoney(subtotal)}</dd>
       </div>
       <div className="flex justify-between py-1 text-ink-soft">
-        <dt>{rate === 0 ? "TVA" : `TVA ${formatRate(rate)}`}</dt>
+        <dt>{rate === 0 ? "VAT" : `VAT ${formatRate(rate)}`}</dt>
         <dd>{formatMoney(vat)}</dd>
       </div>
       <div className="mt-1 flex justify-between border-t border-rule-strong pt-2 font-heading text-2xl">
-        <dt>Total TTC</dt>
+        <dt>Total</dt>
         <dd>{formatMoney(total)}</dd>
       </div>
       {rate === 0 ? <p className="mt-2 text-sm text-muted-foreground">{VAT_EXEMPTION_NOTE}</p> : null}

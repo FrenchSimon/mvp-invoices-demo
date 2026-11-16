@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils";
 
 // Statut d'une facture : toujours un libellé, jamais la couleur seule (DESIGN.md).
 export const STATUS_LABELS: Record<DisplayStatus, string> = {
-  draft: "Brouillon",
-  sent: "Envoyée",
-  paid: "Payée",
-  overdue: "En retard",
+  draft: "Draft",
+  sent: "Sent",
+  paid: "Paid",
+  overdue: "Overdue",
 };
 
 const STATUS_CLASSES: Record<DisplayStatus, string> = {

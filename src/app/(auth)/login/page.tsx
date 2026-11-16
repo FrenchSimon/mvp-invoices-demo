@@ -3,16 +3,16 @@ import Link from "next/link";
 import { AuthCard } from "../auth-card";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = { title: "Connexion" };
+export const metadata: Metadata = { title: "Log in" };
 
 export default function LoginPage() {
   return (
     <AuthCard
-      title="Connexion"
-      intro="Retrouvez vos clients et vos factures."
+      title="Log in"
+      intro="Get back to your clients and invoices."
       footer={
         <p>
-          Pas encore de compte ? <Link href="/signup">Créer un compte</Link>
+          No account yet? <Link href="/signup">Create an account</Link>
         </p>
       }
     >

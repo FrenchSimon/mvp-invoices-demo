@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   description:
-    "Facturation pour les freelances : clients, factures PDF envoyées par email, suivi de ce qui est payé, en attente ou en retard.",
+    "Invoicing for freelancers: clients, PDF invoices sent by email, and a clear view of what is paid, pending or overdue.",
 };
 
 // Accueil (maquette A « Le carnet », validée par Léa) : accroche à gauche,
@@ -22,18 +22,18 @@ export default function Home() {
     <div className="flex-1 overflow-x-hidden text-[17px] leading-relaxed">
       <header className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center justify-between gap-4 border-b border-border px-4 py-5 sm:px-8">
         <Brand />
-        <nav aria-label="Accueil" className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <a href="#tarifs" className="text-foreground no-underline hover:underline">
-            Tarifs
+        <nav aria-label="Home" className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <a href="#pricing" className="text-foreground no-underline hover:underline">
+            Pricing
           </a>
           <Link href="/login" className="text-foreground no-underline hover:underline">
-            Se connecter
+            Log in
           </Link>
           <Link
             href="/signup"
             className="hidden h-10 items-center rounded-md border border-primary px-4 font-semibold text-destructive no-underline hover:bg-card sm:inline-flex"
           >
-            Commencer gratuitement
+            Start for free
           </Link>
         </nav>
       </header>
@@ -42,54 +42,54 @@ export default function Home() {
         <section className="mx-auto flex w-full max-w-[1120px] flex-wrap items-center gap-14 px-4 pt-14 pb-16 sm:px-8 sm:pt-18">
           <div className="min-w-0 flex-[1_1_420px]">
             <p className="mb-4 text-[15px] tracking-wide text-muted-foreground">
-              Pour les freelances qui travaillent seuls
+              For freelancers who work on their own
             </p>
             <h1 className="mb-6 text-4xl leading-[1.08] tracking-tight sm:text-[56px]">
-              Vos factures, bien rangées. Vos paiements, enfin suivis.
+              Your invoices, neatly kept. Your payments, finally tracked.
             </h1>
             <p className="mb-8 max-w-[34em] text-ink-soft">
-              Enregistrez vos clients, créez une facture propre en une minute, envoyez-la en PDF, et voyez
-              d&apos;un coup d&apos;œil qui vous a payé.
+              Save your clients, create a clean invoice in a minute, send it as a PDF, and see at a glance
+              who has paid you.
             </p>
             <div className="flex flex-wrap items-center gap-5">
               <Link href="/signup" className={primary}>
-                Créer ma première facture
+                Create my first invoice
               </Link>
-              <span className="text-[15px] text-muted-foreground">Gratuit, sans carte bancaire</span>
+              <span className="text-[15px] text-muted-foreground">Free, no credit card</span>
             </div>
           </div>
           <SampleInvoice />
         </section>
 
-        <section id="tarifs" className="mx-auto w-full max-w-[1120px] scroll-mt-6 px-4 pb-20 sm:px-8">
+        <section id="pricing" className="mx-auto w-full max-w-[1120px] scroll-mt-6 px-4 pb-20 sm:px-8">
           <div className="border-t border-border pt-12">
-            <h2 className="mb-8 text-3xl sm:text-4xl">Deux formules, sans surprise</h2>
+            <h2 className="mb-8 text-3xl sm:text-4xl">Two plans, no surprises</h2>
             <div className="flex flex-wrap">
               <Plan
-                name="Gratuit"
-                price="0 €"
+                name="Free"
+                price="€0"
                 features={[
-                  `${FREE_MONTHLY_INVOICES} factures par mois`,
-                  "Clients illimités",
-                  "PDF et envoi par email",
-                  "Suivi payé, en attente, en retard",
+                  `${FREE_MONTHLY_INVOICES} invoices per month`,
+                  "Unlimited clients",
+                  "PDF and email sending",
+                  "Paid, pending and overdue tracking",
                 ]}
                 className="pb-8 sm:border-r sm:border-border sm:pt-2 sm:pr-10 sm:pb-2"
               >
                 <Link href="/signup" className="font-semibold">
-                  Commencer gratuitement
+                  Start for free
                 </Link>
               </Plan>
               <Plan
                 name="Pro"
-                price="9 €"
-                per="par mois"
-                features={["Factures illimitées", "Votre logo sur les factures", "Tout ce qu'offre la formule gratuite"]}
+                price="€9"
+                per="per month"
+                features={["Unlimited invoices", "Your logo on invoices", "Everything in the Free plan"]}
                 className="border-t border-border pt-8 sm:border-t-0 sm:pt-2 sm:pl-10"
                 highlight
               >
                 <Link href="/signup" className={primary}>
-                  Passer à Pro
+                  Upgrade to Pro
                 </Link>
               </Plan>
             </div>
@@ -137,8 +137,8 @@ function Plan({
 // Facture d'exemple : une feuille du carnet, légèrement inclinée (DESIGN.md).
 // Image décorative pour les lecteurs d'écran : le texte à côté dit déjà tout.
 const SAMPLE_LINES = [
-  { label: "Identité visuelle", qty: "1", amount: "1 200,00 €" },
-  { label: "Déclinaisons", qty: "3", amount: "450,00 €" },
+  { label: "Brand identity", qty: "1", amount: "€1,200.00" },
+  { label: "Brand variations", qty: "3", amount: "€450.00" },
 ];
 
 function SampleInvoice() {
@@ -149,18 +149,18 @@ function SampleInvoice() {
     >
       <div className="mb-7 flex items-start justify-between gap-4">
         <div>
-          <p className="font-heading text-[28px] leading-tight">Facture</p>
-          <p className="text-muted-foreground">N° 2026-014 · émise le 04/11/2026</p>
+          <p className="font-heading text-[28px] leading-tight">Invoice</p>
+          <p className="text-muted-foreground">No. 2026-014 · issued 4 Nov 2026</p>
         </div>
         <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary font-heading text-[26px] text-primary-foreground">
-          F
+          B
         </span>
       </div>
-      <p className="mb-6 text-ink-soft">À : Atelier Roche · 12 rue Mercière, 69002 Lyon</p>
+      <p className="mb-6 text-ink-soft">To: Roche Studio · 12 Merchant’s Quay, Dublin 8</p>
       <div className="grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] border-y border-t-rule-strong border-b-border py-2 font-semibold">
         <span>Description</span>
-        <span className="text-right">Qté</span>
-        <span className="text-right">Montant HT</span>
+        <span className="text-right">Qty</span>
+        <span className="text-right">Amount</span>
       </div>
       {SAMPLE_LINES.map((l) => (
         <div key={l.label} className="grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] border-b border-border py-2">
@@ -170,12 +170,12 @@ function SampleInvoice() {
         </div>
       ))}
       <div className="flex justify-end gap-8 pt-4 text-ink-soft">
-        <span>TVA 20 %</span>
-        <span>330,00 €</span>
+        <span>VAT 20%</span>
+        <span>€330.00</span>
       </div>
       <div className="flex justify-end gap-8 pt-1.5 font-heading text-[22px]">
-        <span>Total TTC</span>
-        <span>1 980,00 €</span>
+        <span>Total</span>
+        <span>€1,980.00</span>
       </div>
     </div>
   );

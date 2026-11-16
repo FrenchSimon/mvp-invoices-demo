@@ -22,7 +22,7 @@ export function InvoiceTable({ invoices }: { invoices: InvoiceSummary[] }) {
             </div>
             <div className="mt-1 flex items-center justify-between gap-4 text-sm text-ink-soft">
               <span className="min-w-0 truncate">
-                {inv.client_name} · échéance {formatDate(inv.due_date)}
+                {inv.client_name} · due {formatDate(inv.due_date)}
               </span>
               <StatusBadge status={inv.display_status} />
             </div>
@@ -32,12 +32,12 @@ export function InvoiceTable({ invoices }: { invoices: InvoiceSummary[] }) {
       <table className="hidden w-full border-t border-rule-strong text-left sm:table">
         <thead>
           <tr className="border-b border-border text-sm text-muted-foreground">
-            <th className="py-3 pr-4 font-semibold">N°</th>
+            <th className="py-3 pr-4 font-semibold">No.</th>
             <th className="py-3 pr-4 font-semibold">Client</th>
-            <th className="py-3 pr-4 font-semibold">Émise le</th>
-            <th className="py-3 pr-4 font-semibold">Échéance</th>
-            <th className="py-3 pr-4 text-right font-semibold">Montant TTC</th>
-            <th className="py-3 font-semibold">Statut</th>
+            <th className="py-3 pr-4 font-semibold">Issued</th>
+            <th className="py-3 pr-4 font-semibold">Due</th>
+            <th className="py-3 pr-4 text-right font-semibold">Total</th>
+            <th className="py-3 font-semibold">Status</th>
           </tr>
         </thead>
         <tbody className="tabular-nums">

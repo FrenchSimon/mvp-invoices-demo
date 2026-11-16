@@ -13,7 +13,7 @@ let stripe: Stripe | null = null;
 export function getStripe(): Stripe {
   if (stripe) return stripe;
   const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) throw new Error("STRIPE_SECRET_KEY manquante.");
+  if (!key) throw new Error("STRIPE_SECRET_KEY is missing.");
   stripe = new Stripe(key, { appInfo: { name: APP_NAME } });
   return stripe;
 }
@@ -37,7 +37,7 @@ export async function syncPlanFromStripe(customerId: string): Promise<"free" | "
     .update({ plan, subscription_status: current?.status ?? null })
     .eq("stripe_customer_id", customerId)
     .select("id");
-  if (error) throw new Error(`Mise à jour du plan impossible : ${error.message}`);
+  if (error) throw new Error(`Plan update failed: ${error.message}`);
   // Aucun profil pour ce client Stripe (client créé ailleurs) : rien à faire.
   return data && data.length > 0 ? plan : null;
 }

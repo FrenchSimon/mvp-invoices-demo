@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Clients" };
 export default function ClientsPage() {
   return (
     <>
-      <PageHeader title="Clients" action={<PrimaryLink href="/clients/new">Nouveau client</PrimaryLink>} />
+      <PageHeader title="Clients" action={<PrimaryLink href="/clients/new">New client</PrimaryLink>} />
       <Suspense fallback={<LoadingLine />}>
         <ClientList />
       </Suspense>
@@ -25,13 +25,13 @@ async function ClientList() {
     .select("id, name, email, address, vat_number")
     .order("name");
 
-  if (error) return <p role="alert" className="text-destructive">Les clients n&apos;ont pas pu être chargés.</p>;
+  if (error) return <p role="alert" className="text-destructive">Clients couldn&apos;t be loaded.</p>;
   const clients = (data ?? []) as Client[];
 
   if (clients.length === 0) {
     return (
       <p className="text-ink-soft">
-        Aucun client pour l&apos;instant. Ajoutez votre premier client pour pouvoir lui faire une facture.
+        No clients yet. Add your first client to start invoicing.
       </p>
     );
   }
@@ -41,9 +41,9 @@ async function ClientList() {
     <table className="w-full border-t border-rule-strong text-left">
       <thead className="sr-only sm:not-sr-only">
         <tr className="border-b border-border text-sm text-muted-foreground">
-          <th className="py-3 pr-4 font-semibold">Nom</th>
+          <th className="py-3 pr-4 font-semibold">Name</th>
           <th className="py-3 pr-4 font-semibold">Email</th>
-          <th className="hidden py-3 font-semibold md:table-cell">Adresse</th>
+          <th className="hidden py-3 font-semibold md:table-cell">Address</th>
         </tr>
       </thead>
       <tbody>

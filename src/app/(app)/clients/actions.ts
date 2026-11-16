@@ -26,20 +26,20 @@ export async function saveClient(
   const values = readClient(formData);
   const id = String(formData.get("id") ?? "");
 
-  if (!values.name) return { error: "Indiquez le nom du client.", values };
+  if (!values.name) return { error: "Enter the client's name.", values };
   if (values.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
-    return { error: "Adresse email invalide.", values };
+    return { error: "Invalid email address.", values };
   }
 
   const { supabase } = await requireUser();
 
   if (id) {
     const { data, error } = await supabase.from("clients").update(values).eq("id", id).select("id");
-    if (error) return { error: "Le client n'a pas pu être enregistré. Réessayez.", values };
-    if (!data?.length) return { error: "Ce client n'existe plus.", values };
+    if (error) return { error: "The client couldn't be saved. Try again.", values };
+    if (!data?.length) return { error: "This client no longer exists.", values };
   } else {
     const { error } = await supabase.from("clients").insert(values);
-    if (error) return { error: "Le client n'a pas pu être enregistré. Réessayez.", values };
+    if (error) return { error: "The client couldn't be saved. Try again.", values };
   }
 
   redirect("/clients");
@@ -54,9 +54,9 @@ export async function deleteClient(_prev: DeleteState, formData: FormData): Prom
   const { error } = await supabase.from("clients").delete().eq("id", id);
   // 23503 : clé étrangère. Le client a des factures, qui doivent rester valables.
   if (error?.code === "23503") {
-    return { error: "Ce client a des factures : il ne peut pas être supprimé." };
+    return { error: "This client has invoices, so it can't be deleted." };
   }
-  if (error) return { error: "Le client n'a pas pu être supprimé. Réessayez." };
+  if (error) return { error: "The client couldn't be deleted. Try again." };
 
   redirect("/clients");
 }

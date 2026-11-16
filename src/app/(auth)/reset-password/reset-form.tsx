@@ -14,8 +14,8 @@ export function ResetForm() {
         id="password"
         name="password"
         type="password"
-        label="Nouveau mot de passe"
-        hint="8 caractères au moins."
+        label="New password"
+        hint="At least 8 characters."
         autoComplete="new-password"
         minLength={8}
         required
@@ -24,13 +24,13 @@ export function ResetForm() {
         id="confirm"
         name="confirm"
         type="password"
-        label="Confirmer le mot de passe"
+        label="Confirm password"
         autoComplete="new-password"
         minLength={8}
         required
       />
       <FormMessage error={state.error} />
-      <SubmitButton pending={pending} className="w-full">Enregistrer</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Save</SubmitButton>
     </form>
   );
 }

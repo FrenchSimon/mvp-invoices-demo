@@ -7,7 +7,7 @@ import { FREE_MONTHLY_INVOICES, getPlanUsage } from "@/lib/plan";
 import { requireUser } from "@/lib/supabase/user";
 import { InvoiceEditor } from "../invoice-editor";
 
-export const metadata: Metadata = { title: "Nouvelle facture" };
+export const metadata: Metadata = { title: "New invoice" };
 
 export default function NewInvoicePage() {
   return (
@@ -30,13 +30,13 @@ async function NewInvoice() {
   if (usage.limitReached) {
     return (
       <>
-        <PageHeader title="Nouvelle facture" back={{ href: "/invoices", label: "Factures" }} />
+        <PageHeader title="New invoice" back={{ href: "/invoices", label: "Invoices" }} />
         <p className="mb-2 text-ink-soft">
-          Vous avez créé vos {FREE_MONTHLY_INVOICES} factures gratuites ce mois-ci. Le compteur repart à zéro le 1er
-          du mois prochain.
+          You&apos;ve used your {FREE_MONTHLY_INVOICES} free invoices this month. The count resets on the 1st of
+          next month.
         </p>
-        <p className="mb-6 text-ink-soft">Avec Pro (9 € par mois), les factures sont illimitées et votre logo apparaît sur le PDF.</p>
-        <PrimaryLink href="/pro">Passer à Pro</PrimaryLink>
+        <p className="mb-6 text-ink-soft">With Pro (€9 per month), invoices are unlimited and your logo appears on the PDF.</p>
+        <PrimaryLink href="/pro">Upgrade to Pro</PrimaryLink>
       </>
     );
   }
@@ -44,9 +44,9 @@ async function NewInvoice() {
   if (clients.length === 0) {
     return (
       <>
-        <PageHeader title="Nouvelle facture" back={{ href: "/invoices", label: "Factures" }} />
-        <p className="mb-6 text-ink-soft">Ajoutez d&apos;abord le client à qui vous adressez la facture.</p>
-        <PrimaryLink href="/clients/new">Nouveau client</PrimaryLink>
+        <PageHeader title="New invoice" back={{ href: "/invoices", label: "Invoices" }} />
+        <p className="mb-6 text-ink-soft">First, add the client you&apos;re invoicing.</p>
+        <PrimaryLink href="/clients/new">New client</PrimaryLink>
       </>
     );
   }
@@ -56,7 +56,7 @@ async function NewInvoice() {
     <>
       <Sheet className="max-w-[880px]">
         <InvoiceEditor
-          title="Nouvelle facture"
+          title="New invoice"
           clients={clients}
           initial={{
             clientId: clients.length === 1 ? clients[0].id : "",
@@ -69,8 +69,8 @@ async function NewInvoice() {
         />
       </Sheet>
       <p className="mt-4 text-sm text-muted-foreground">
-        Le numéro est attribué à la création. Le client n&apos;est pas dans la liste ?{" "}
-        <Link href="/clients/new">Ajouter un client</Link>
+        The number is assigned when the invoice is created. Client not in the list?{" "}
+        <Link href="/clients/new">Add a client</Link>
       </p>
     </>
   );

@@ -27,7 +27,7 @@ async function ensureCustomer(userId: string, email: string): Promise<string> {
     .select("stripe_customer_id")
     .eq("id", userId)
     .single();
-  if (error || !profile) throw new Error("Profil introuvable.");
+  if (error || !profile) throw new Error("Profile not found.");
   if (profile.stripe_customer_id) return profile.stripe_customer_id;
 
   // Même clé d'idempotence : deux clics rapides ne créent qu'un client Stripe.
@@ -40,7 +40,7 @@ async function ensureCustomer(userId: string, email: string): Promise<string> {
     .from("profiles")
     .update({ stripe_customer_id: customer.id })
     .eq("id", userId);
-  if (saveError) throw new Error("Client Stripe non enregistré.");
+  if (saveError) throw new Error("Stripe customer not saved.");
   return customer.id;
 }
 
@@ -58,7 +58,7 @@ export async function startCheckout(): Promise<ProState> {
       mode: "subscription",
       customer,
       client_reference_id: user.id,
-      locale: "fr",
+      locale: "en",
       line_items: [
         {
           quantity: 1,
@@ -71,15 +71,15 @@ export async function startCheckout(): Promise<ProState> {
         },
       ],
       subscription_data: { metadata: { user_id: user.id } },
-      success_url: `${origin}/pro?paiement=ok`,
+      success_url: `${origin}/pro?payment=success`,
       cancel_url: `${origin}/pro`,
     });
     url = session.url;
   } catch (error) {
     console.error("[pro] checkout", error);
-    return { error: "Le paiement n'a pas pu démarrer. Réessayez dans un instant." };
+    return { error: "The payment couldn't start. Try again in a moment." };
   }
-  if (!url) return { error: "Le paiement n'a pas pu démarrer. Réessayez dans un instant." };
+  if (!url) return { error: "The payment couldn't start. Try again in a moment." };
   redirect(url);
 }
 
@@ -91,20 +91,20 @@ export async function openBillingPortal(): Promise<ProState> {
     .select("stripe_customer_id")
     .eq("id", user.id)
     .single();
-  if (!profile?.stripe_customer_id) return { error: "Aucun abonnement à gérer." };
+  if (!profile?.stripe_customer_id) return { error: "No subscription to manage." };
 
   let url: string;
   try {
     const origin = await siteOrigin();
     const session = await getStripe().billingPortal.sessions.create({
       customer: profile.stripe_customer_id,
-      locale: "fr",
+      locale: "en",
       return_url: `${origin}/pro`,
     });
     url = session.url;
   } catch (error) {
     console.error("[pro] portal", error);
-    return { error: "La gestion de l'abonnement n'est pas disponible. Réessayez plus tard." };
+    return { error: "Subscription management isn't available right now. Try again later." };
   }
   redirect(url);
 }

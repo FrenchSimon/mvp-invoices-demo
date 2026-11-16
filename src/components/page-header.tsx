@@ -74,5 +74,5 @@ export function Sheet({ children, className }: { children: ReactNode; className?
 }
 
 export function LoadingLine() {
-  return <p className="text-muted-foreground">Chargement…</p>;
+  return <p className="text-muted-foreground">Loading…</p>;
 }

@@ -22,7 +22,7 @@ export function ForgotForm() {
         defaultValue={state.email}
       />
       <FormMessage error={state.error} />
-      <SubmitButton pending={pending} className="w-full">Recevoir le lien</SubmitButton>
+      <SubmitButton pending={pending} className="w-full">Send me the link</SubmitButton>
     </form>
   );
 }

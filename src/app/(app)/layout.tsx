@@ -20,7 +20,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           </div>
           <form action={logout} className="order-2 pb-3 sm:order-3">
             <button type="submit" className="text-base text-destructive hover:underline">
-              Se déconnecter
+              Log out
             </button>
           </form>
         </div>

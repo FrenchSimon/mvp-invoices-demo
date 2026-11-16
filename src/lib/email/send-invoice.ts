@@ -18,7 +18,7 @@ const DEFAULT_FROM_EMAIL = "onboarding@resend.dev";
 
 // Nom affiché dans « De : » : sans caractères qui casseraient l'en-tête.
 function displayName(name: string): string {
-  return name.replace(/[<>",;\r\n]/g, " ").replace(/\s+/g, " ").trim() || "Facturation";
+  return name.replace(/[<>",;\r\n]/g, " ").replace(/\s+/g, " ").trim() || "Invoicing";
 }
 
 function escapeHtml(text: string): string {
@@ -32,16 +32,16 @@ function escapeHtml(text: string): string {
 
 export function invoiceEmailContent(data: FullInvoice) {
   const { invoice, summary, company } = data;
-  const from = company.company_name.trim() || "Votre prestataire";
-  const subject = `Facture ${invoice.number} – ${from}`;
+  const from = company.company_name.trim() || "Your supplier";
+  const subject = `Invoice ${invoice.number} – ${from}`;
   const paragraphs = [
-    "Bonjour,",
-    `Vous trouverez ci-joint la facture ${invoice.number} d'un montant de ${formatMoney(summary.total_cents)} TTC, à régler avant le ${formatDate(invoice.due_date)}.`,
-    "Merci et bonne journée,",
+    "Hello,",
+    `Please find attached invoice ${invoice.number} for ${formatMoney(summary.total_cents)}, due by ${formatDate(invoice.due_date)}.`,
+    "Many thanks,",
     from,
   ];
   // Mention discrète de l'app en bas, après la signature du freelance.
-  const footer = `Facture envoyée avec ${APP_NAME}.`;
+  const footer = `Sent with ${APP_NAME}.`;
   const text = [...paragraphs, "--", footer].join("\n\n");
   const html = `<div style="font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#2b2622">${paragraphs
     .map((p) => `<p style="margin:0 0 14px">${escapeHtml(p)}</p>`)
@@ -52,15 +52,15 @@ export function invoiceEmailContent(data: FullInvoice) {
 // Traduit les refus de Resend en message lisible par le freelance.
 function resendErrorMessage(message: string): string {
   if (/own email address|verify a domain|domain is not verified/i.test(message)) {
-    return "L'envoi n'est pas encore ouvert vers cette adresse : il faut d'abord vérifier un domaine d'envoi.";
+    return "Sending to this address isn't enabled yet: a sending domain must be verified first.";
   }
-  if (/rate limit|too many/i.test(message)) return "Trop d'envois d'un coup. Réessayez dans une minute.";
-  return "L'email n'a pas pu être envoyé. Réessayez dans un instant.";
+  if (/rate limit|too many/i.test(message)) return "Too many emails at once. Try again in a minute.";
+  return "The email couldn't be sent. Try again in a moment.";
 }
 
 export async function sendInvoiceEmail(data: FullInvoice, to: string): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return { ok: false, error: "L'envoi par email n'est pas configuré sur ce serveur." };
+  if (!apiKey) return { ok: false, error: "Email sending isn't configured on this server." };
 
   const fromEmail = process.env.RESEND_FROM_EMAIL || DEFAULT_FROM_EMAIL;
   const { subject, text, html } = invoiceEmailContent(data);
