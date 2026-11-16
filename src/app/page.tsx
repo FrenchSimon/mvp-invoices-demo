@@ -16,7 +16,8 @@ export const metadata: Metadata = {
 // Page statique : une personne connectée qui clique « Se connecter » est
 // renvoyée vers son tableau de bord par le proxy.
 // cn() résout le conflit avec la taille de texte du bouton de base (comme PrimaryLink).
-const primary = cn(buttonVariants(), "h-11 px-5 text-[17px] font-semibold no-underline text-primary-foreground");
+// Texte des boutons en 16 px : à 17 px, Source Sans 3 se place 2 px trop haut dans le bouton.
+const primary = cn(buttonVariants(), "h-11 px-5 text-base font-semibold no-underline text-primary-foreground");
 
 export default function Home() {
   return (
@@ -32,7 +33,7 @@ export default function Home() {
           </Link>
           <Link
             href="/signup"
-            className="hidden h-10 items-center rounded-md border border-primary px-4 font-semibold text-destructive no-underline hover:bg-card sm:inline-flex"
+            className="hidden h-10 items-center rounded-md border border-primary px-4 text-base font-semibold text-destructive no-underline hover:bg-card sm:inline-flex"
           >
             Start for free
           </Link>
@@ -154,7 +155,8 @@ function SampleInvoice() {
           <p className="font-heading text-[28px] leading-tight">Invoice</p>
           <p className="text-muted-foreground">No. 2026-014 · issued 4 Nov 2026</p>
         </div>
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary font-heading text-[26px] text-primary-foreground">
+        {/* pt-2 : même correction optique que le logo (Newsreader), à 26 px. */}
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-primary pt-2 font-heading text-[26px] text-primary-foreground">
           B
         </span>
       </div>
