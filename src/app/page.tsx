@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Brand } from "@/components/brand";
+import { SiteFooter } from "@/components/site-footer";
 import { buttonVariants } from "@/components/ui/button";
 import { FREE_MONTHLY_INVOICES } from "@/lib/plan";
 import { cn } from "@/lib/utils";
@@ -96,6 +97,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }
