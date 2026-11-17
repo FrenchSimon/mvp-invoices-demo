@@ -1,39 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Billnote
 
-## Getting Started
+Simple invoicing for freelancers: add your clients, create an invoice in under a minute, download it as a PDF or email it, and see at a glance what is paid, pending or overdue. Free plan with 3 invoices a month, Pro plan by card through Stripe.
 
-First, run the development server:
+**Live demo: https://mvp-invoices-demo.vercel.app** — click **Try the demo**. No sign-up needed: you get your own workspace filled with sample data, deleted after 24 hours. No email is sent, and payments use Stripe test mode (card `4242 4242 4242 4242`, any future date, any CVC).
+
+![Billnote dashboard in the demo workspace](docs/dashboard.jpg)
+
+## Features
+
+- Sign up, log in, password reset by email, terms acceptance at sign-up
+- Clients: add, edit, delete
+- Invoices with several lines, VAT and totals, unique numbers per year (`2026-001`)
+- PDF download with the company details, and the logo on the Pro plan
+- Email the invoice to the client with the PDF attached (Resend)
+- Statuses: draft, sent, paid, overdue (set automatically after the due date)
+- Dashboard: received this month, pending, overdue, latest invoices
+- Free plan limited to 3 invoices a month, Pro plan at €9/month through Stripe Checkout
+- Admin page listing sign-ups, visible to admin accounts only
+- One-click demo workspace, with no account
+
+## Stack
+
+Next.js 16 (App Router, Server Actions) · React 19 · TypeScript · Tailwind CSS 4 and shadcn/ui · Supabase (Postgres, Auth, Storage, row level security) · Stripe (Checkout, subscriptions, webhooks) · Resend · `@react-pdf/renderer` · Vercel
+
+## How it is built
+
+**Security lives in the database, not in the interface.** Every table has row level security: a freelancer can never read or change another freelancer's clients, invoices or logo, even by calling the API directly. Admin access is checked by the database too.
+
+**Business rules are enforced by Postgres.** The free plan limit, invoice numbering, creation and payment dates, and the lock on sent invoices are handled by triggers. The interface only warns the user before the database refuses.
+
+**Stripe is the source of truth for the plan.** The webhook verifies the Stripe signature on the raw body, then reads the subscription from Stripe instead of trusting the event payload, so a replayed or out-of-order event cannot set the wrong plan. On error it returns 500, so Stripe retries.
+
+**The demo uses real rules.** "Try the demo" opens an anonymous Supabase session and fills a private workspace. It follows the same row level security and plan limits as a real account, cannot see real accounts, and is purged after 24 hours.
+
+**Every database change is a migration** in `supabase/migrations/`, never a manual edit in the Supabase dashboard.
+
+## Tests
+
+The database rules are tested against the real migrations, run in [PGlite](https://pglite.dev) (Postgres in WebAssembly, no Docker): 56 checks covering data isolation between freelancers, admin access, invoice locking, numbering, the free plan limit, logo storage and the demo workspace.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run test:db     # database rules
+npm run typecheck
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Run it locally
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You need a Supabase project, and optionally Stripe (test mode) and Resend accounts.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+cp .env.example .env.local    # fill in the values, see comments in the file
+npx supabase link --project-ref <your-project-ref>
+npx supabase db push          # apply the migrations to your Supabase project
+npm run dev
+```
 
-## Learn More
+Open http://localhost:3000.
 
-To learn more about Next.js, take a look at the following resources:
+## Project layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/app/(auth)/           sign up, log in, password reset
+src/app/(app)/            dashboard, clients, invoices, settings, Pro plan, admin
+src/app/api/stripe/       Stripe webhook
+src/lib/                  Supabase clients, Stripe, PDF, email, plan rules
+src/proxy.ts              session refresh and protected routes
+supabase/migrations/      database schema, policies and triggers
+supabase/tests/           database tests (PGlite)
+```
 
 ## Copyright
 
