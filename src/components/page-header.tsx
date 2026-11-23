@@ -31,6 +31,15 @@ export function PageHeader({
   );
 }
 
+// Retour vers la liste, au-dessus de la feuille (hors de la facture elle-même).
+export function BackLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="mb-2 inline-flex min-h-11 items-center text-sm">
+      ← {label}
+    </Link>
+  );
+}
+
 // Lien qui a l'apparence du bouton principal (terracotta plein).
 export function PrimaryLink({ href, children }: { href: string; children: string }) {
   return (

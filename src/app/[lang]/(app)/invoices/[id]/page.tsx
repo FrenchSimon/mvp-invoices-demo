@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { LoadingLine, SecondaryLink, Sheet } from "@/components/page-header";
+import { BackLink, LoadingLine, SecondaryLink, Sheet } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -71,25 +71,28 @@ async function InvoiceDetail({ params, searchParams }: Pick<PageProps<"/[lang]/i
   }
 
   return (
-    <div className="flex flex-wrap items-start gap-10">
-      <Sheet className="min-w-0 flex-[999_1_600px]">
-        <SentInvoice
-          title={title}
-          badge={badge}
-          invoice={invoice}
-          summary={summary}
-          items={items}
-          client={client}
-          justEmailed={justEmailed}
-          locale={locale}
-          t={t}
-        />
-      </Sheet>
-      <aside className="flex min-w-0 flex-[1_1_220px] flex-col gap-5">
-        <StatusActions id={invoice.id} status={invoice.status} />
-        <StatusHistory summary={summary} locale={locale} t={t} />
-      </aside>
-    </div>
+    <>
+      <BackLink href="/invoices" label={t.invoices.back} />
+      <div className="flex flex-wrap items-start gap-10">
+        <Sheet className="min-w-0 flex-[999_1_600px]">
+          <SentInvoice
+            title={title}
+            badge={badge}
+            invoice={invoice}
+            summary={summary}
+            items={items}
+            client={client}
+            justEmailed={justEmailed}
+            locale={locale}
+            t={t}
+          />
+        </Sheet>
+        <aside className="flex min-w-0 flex-[1_1_220px] flex-col gap-5">
+          <StatusActions id={invoice.id} status={invoice.status} />
+          <StatusHistory summary={summary} locale={locale} t={t} />
+        </aside>
+      </div>
+    </>
   );
 }
 
@@ -120,12 +123,7 @@ function SentInvoice({
   return (
     <>
       <div className="mb-8 flex flex-wrap justify-between gap-4">
-        <div>
-          <Link href="/invoices" className="text-sm">
-            ← {t.invoices.back}
-          </Link>
-          <h1 className="mt-1 text-3xl sm:text-4xl">{title}</h1>
-        </div>
+        <h1 className="text-3xl sm:text-4xl">{title}</h1>
         <div className="flex flex-wrap items-center gap-3 self-end">
           {badge}
           <SecondaryLink href={`/invoices/${invoice.id}/pdf`} download>

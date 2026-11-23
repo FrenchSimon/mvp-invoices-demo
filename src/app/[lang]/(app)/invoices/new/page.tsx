@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { LoadingLine, PageHeader, PrimaryLink, Sheet } from "@/components/page-header";
+import { BackLink, LoadingLine, PageHeader, PrimaryLink, Sheet } from "@/components/page-header";
 import { fmt } from "@/i18n/message";
 import { getI18n } from "@/i18n/server";
 import { addDaysIso, todayIso } from "@/lib/format";
@@ -60,6 +60,7 @@ async function NewInvoice() {
   const today = todayIso();
   return (
     <>
+      <BackLink href="/invoices" label={t.invoices.back} />
       <Sheet className="max-w-[880px]">
         <InvoiceEditor
           title={t.invoices.newInvoice}

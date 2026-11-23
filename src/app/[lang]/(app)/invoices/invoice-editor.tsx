@@ -110,12 +110,7 @@ export function InvoiceEditor({
   return (
     <form action={action}>
       <div className="mb-8 flex flex-wrap justify-between gap-4">
-        <div>
-          <Link href="/invoices" className="text-sm">
-            ← {t.invoices.back}
-          </Link>
-          <h1 className="mt-1 text-3xl sm:text-4xl">{title}</h1>
-        </div>
+        <h1 className="text-3xl sm:text-4xl">{title}</h1>
         <div className="flex flex-wrap items-center gap-3 self-end">
           {badge}
           {initial.id ? (
