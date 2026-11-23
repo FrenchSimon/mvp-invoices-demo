@@ -19,7 +19,7 @@ export const common: Dictionary["common"] = {
   },
   nav: {
     label: "Navigation principale",
-    dashboard: "Tableau de bord",
+    dashboard: "Accueil",
     invoices: "Factures",
     clients: "Clients",
     settings: "Réglages",
