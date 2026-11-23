@@ -37,6 +37,9 @@
   --color-status-paid-foreground: var(--status-paid-foreground);
   --color-status-overdue: var(--status-overdue);
   --color-status-overdue-foreground: var(--status-overdue-foreground);
+  --color-demo: var(--demo);
+  --color-demo-foreground: var(--demo-foreground);
+  --color-demo-muted: var(--demo-muted);
   --radius-sm: calc(var(--radius) * 0.75);
   --radius-md: var(--radius);
   --radius-lg: var(--radius);
@@ -80,6 +83,12 @@
   --status-paid-foreground: #275c34;
   --status-overdue: #9c4426;
   --status-overdue-foreground: #fff8f0;
+
+  /* Barre « Portfolio demo » au-dessus de chaque page : mêmes couleurs que Kinora,
+     pour que les deux démos se présentent de la même façon. */
+  --demo: #1e2b24;
+  --demo-foreground: #f3eee4;
+  --demo-muted: #c9c2b3;
 
   --radius: 0.25rem;
 }

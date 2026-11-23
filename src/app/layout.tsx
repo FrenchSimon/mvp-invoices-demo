@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader, Source_Sans_3 } from "next/font/google";
 import { APP_NAME } from "@/components/brand";
+import { PortfolioBar } from "@/components/portfolio-bar";
 import "./globals.css";
 
 // Polices de DESIGN.md : titres à empattements, texte sans empattements.
@@ -24,7 +25,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <PortfolioBar />
+        {children}
+      </body>
     </html>
   );
 }
