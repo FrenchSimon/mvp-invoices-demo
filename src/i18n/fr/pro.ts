@@ -5,7 +5,7 @@ export const pro: Dictionary["pro"] = {
   yourPro: "Votre formule Pro",
   upgrade: "Passer à Pro",
   proIntro: "Factures illimitées et votre logo sur vos PDF.",
-  freeIntro: "Ce mois-ci : {used} factures sur {limit} utilisées avec la formule Gratuit.",
+  freeIntro: "Ce mois-ci : {used} sur {limit}\u00a0factures utilisées avec la formule Gratuit.",
   justPaid: "Paiement reçu : vous êtes passé à Pro. Merci !",
   confirming: "Votre paiement est en cours de confirmation. Rechargez la page dans un instant.",
   feature: "Fonctionnalité",

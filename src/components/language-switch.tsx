@@ -1,9 +1,12 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { LOCALES, type Locale } from "@/i18n/config";
+import type { Locale } from "@/i18n/config";
 import { cn } from "@/lib/utils";
 import { demoFocusRing } from "./focus-ring";
+
+// Ordre affiché : FR puis EN (même choix que Kinora).
+const ORDER: Locale[] = ["fr", "en"];
 
 type Props = { locale: Locale; label: string; names: Record<Locale, string> };
 
@@ -29,7 +32,7 @@ function withLang(search: string, lang: Locale): string {
 function Switch({ locale, label, names, hrefFor }: Props & { hrefFor: (lang: Locale) => string }) {
   return (
     <nav aria-label={label} className="flex items-center">
-      {LOCALES.map((lang, index) => {
+      {ORDER.map((lang, index) => {
         const current = lang === locale;
         return (
           <span key={lang} className="flex items-center">
