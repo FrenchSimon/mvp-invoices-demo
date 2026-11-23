@@ -21,6 +21,7 @@ declare
   v_inv uuid;
   r record;
   v_issue date;
+  v_vat numeric;
   v_sent timestamptz;
 begin
   if v_uid is null or not public.is_demo() then
@@ -45,8 +46,8 @@ begin
 
   with c(pos, name, email, address, vat) as (
     select * from (values
-      (1, 'Halden Architects', 'office@halden.example.com', E'Sankt Gallen Strasse 4\n9000 St. Gallen, Switzerland', ''),
-      (2, 'Roche Studio', 'hello@roche.example.com', E'12 Merchant''s Quay\nDublin 8, Ireland', 'IE1234567T'),
+      (1, 'Halden Architects', 'office@halden.example.com', E'Sporgasse 4\n8010 Graz, Austria', 'ATU23456789'),
+      (2, 'Roche Studio', 'hello@roche.example.com', E'Burggasse 12\n1070 Vienna, Austria', 'ATU34567890'),
       (3, 'Kestrel Coffee Roasters', 'accounts@kestrel.example.com', E'Mariahilfer Strasse 88\n1060 Vienna, Austria', 'ATU87654321'),
       (4, 'Tidewell Studio', 'billing@tidewell.example.com', E'410 Harbor Street\nPortland, ME 04101, USA', ''),
       (5, 'Marlow & Finch', 'studio@marlowfinch.example.com', E'22 Canal Road\nLeeds LS1 4AB, United Kingdom', 'GB123456789'),
@@ -58,7 +59,7 @@ begin
       (1, 'Halden Architectes', 'contact@halden.example.com', E'4 place Bellecour\n69002 Lyon', 'FR18452367891'),
       (2, 'Atelier Roche', 'bonjour@roche.example.com', E'12 quai Saint-Antoine\n69002 Lyon', 'FR40123456789'),
       (3, 'Torréfaction Crécerelle', 'compta@crecerelle.example.com', E'88 rue Oberkampf\n75011 Paris', 'FR83876543210'),
-      (4, 'Tidewell Studio', 'billing@tidewell.example.com', E'410 Harbor Street\nPortland, ME 04101, USA', ''),
+      (4, 'Studio Marée', 'facturation@studiomaree.example.com', E'15 quai de la Fosse\n44000 Nantes', 'FR56789012345'),
       (5, 'Éditions Marlowe', 'studio@marlowe.example.com', E'22 cours Victor-Hugo\n33000 Bordeaux', 'FR12345678901'),
       (6, 'Librairie du Chêne', 'commandes@chene.example.com', E'7 rue de la Paix\n44000 Nantes', 'FR98765432109')
     ) as fr(pos, name, email, address, vat)
@@ -89,15 +90,19 @@ begin
       (6, 2, 'draft', null, 20, 'Author website: design', 'Site d''auteur : design', 1, 135000, null, null, null, null)
     ) as t(client, days, status, paid_after, vat, d1, f1, q1, p1, d2, f2, q2, p2)
   loop
+    -- Taux réel : 20 % en France (SASU assujettie) et pour les clients autrichiens
+    -- d'une freelance à Vienne ; 0 % pour l'Allemagne (autoliquidation, client 6)
+    -- et hors UE (États-Unis, client 4 ; Royaume-Uni, client 5).
+    v_vat := case when v_fr then 20 when r.client in (4, 5, 6) then 0 else 20 end;
     v_issue := current_date - r.days;
     v_sent := v_issue + time '10:00' + interval '1 day';
     insert into public.invoices
       (client_id, issue_date, due_date, status, vat_rate, notes, sent_at, paid_at, created_at)
     values (
-      v_clients[r.client], v_issue, v_issue + 30, r.status, r.vat,
+      v_clients[r.client], v_issue, v_issue + 30, r.status, v_vat,
       case
-        when r.vat = 0 and v_fr then 'Exonération de TVA : prestation de services hors UE (art. 259-1 du CGI).'
-        when r.vat = 0 then 'VAT reverse charge / export of services.'
+        when v_vat = 0 and r.client = 6 then 'Reverse charge: VAT to be accounted for by the customer (Art. 196, Directive 2006/112/EC).'
+        when v_vat = 0 then 'Services supplied outside the EU: not subject to Austrian VAT.'
         when v_fr then 'Paiement par virement sous 30 jours.'
         else 'Payment by bank transfer within 30 days.'
       end,

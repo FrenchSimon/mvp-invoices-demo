@@ -33,7 +33,7 @@ export const landing = {
   sample: {
     title: "Invoice",
     meta: "No. 2026-014 · issued {date}",
-    to: "To: Roche Studio · 12 Merchant’s Quay, Dublin 8",
+    to: "To: Roche Studio · Burggasse 12, 1070 Vienna",
     lines: ["Brand identity", "Brand variations"],
     total: "Total",
   },
