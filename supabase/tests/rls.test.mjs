@@ -312,5 +312,35 @@ const left = (await db.query(`select (select count(*)::int from public.profiles 
 ok(fresh === 0 && purged === 1 && left.p === 0 && left.i === 0 && left.all_p === 2,
   "purge : une démo de moins de 24 h est gardée, après 24 h elle est effacée, les vrais comptes restent");
 
+// Démo en français (barre FR / EN) : même contenu chiffré, textes en français.
+const F = "d0000000-0000-0000-0000-0000000000f2";
+await db.exec(`insert into auth.users (id, email, is_anonymous) values ('${F}', null, true);`);
+await as(F, () => db.query(`select public.seed_demo_workspace('fr')`));
+const demoFr = await as(F, async () => (await db.query(`select
+  (select count(*)::int from public.clients) clients,
+  (select count(*)::int from public.invoices) invoices,
+  (select count(*)::int from public.invoice_summaries where display_status = 'paid') paid,
+  (select count(*)::int from public.invoice_summaries where display_status = 'overdue') overdue,
+  (select count(*)::int from public.invoices where created_at >= date_trunc('month', now())) this_month,
+  (select sum(total_cents)::int from public.invoice_summaries) total,
+  (select address from public.profiles) address,
+  (select count(*)::int from public.clients where name = 'Atelier Roche') roche,
+  (select count(*)::int from public.invoice_items where description = 'Identité visuelle') line,
+  (select count(*)::int from public.invoices where notes like 'Paiement par virement%') notes`)).rows[0]);
+ok(demoFr.clients === 6 && demoFr.invoices === 12 && demoFr.paid === 7 && demoFr.overdue === 2
+  && demoFr.this_month === 1 && demoFr.address.includes("Lyon") && demoFr.roche === 1
+  && demoFr.line === 1 && demoFr.notes === 10,
+  `démo en français : clients, lignes et mentions en français ${JSON.stringify(demoFr)}`);
+const E = "d0000000-0000-0000-0000-0000000000e2";
+await db.exec(`insert into auth.users (id, email, is_anonymous) values ('${E}', null, true);`);
+await as(E, () => db.query(`select public.seed_demo_workspace('en')`));
+const demoEn = await as(E, async () => (await db.query(`select
+  (select sum(total_cents)::int from public.invoice_summaries) total,
+  (select count(*)::int from public.clients where name = 'Roche Studio') roche`)).rows[0]);
+ok(demoFr.total === demoEn.total && demoEn.roche === 1,
+  `démo : mêmes montants en français et en anglais (${demoFr.total} / ${demoEn.total})`);
+const fallbackLang = await as(F, () => fails(`select public.seed_demo_workspace('de')`));
+ok(fallbackLang === null, "seed_demo_workspace() accepte une langue inconnue (anglais) et reste sans effet sur un espace rempli");
+
 console.log(failures === 0 ? "\nTous les tests passent." : `\n${failures} test(s) en échec.`);
 process.exit(failures === 0 ? 0 : 1);
