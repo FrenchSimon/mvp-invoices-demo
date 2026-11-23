@@ -1,7 +1,10 @@
 import path from "node:path";
 import { Document, Font, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import type { Locale } from "@/i18n/config";
+import { getDictionary } from "@/i18n/dictionaries";
+import { fmt } from "@/i18n/message";
 import { formatDate, formatMoney, formatNumber, formatRate } from "@/lib/format";
-import { lineTotalCents, VAT_EXEMPTION_NOTE } from "@/lib/invoices/totals";
+import { lineTotalCents } from "@/lib/invoices/totals";
 import type { FullInvoice } from "@/lib/invoices/load";
 
 // Polices de DESIGN.md, embarquées dans le PDF (fichiers dans ./fonts, licence OFL).
@@ -25,9 +28,9 @@ const MUTED = "#6B5F55";
 const RULE = "#DCD1C2";
 const TERRACOTTA = "#B5532F";
 
-// Espaces insécables fines de Intl -> espaces simples, présentes dans toutes les polices.
-const plain = (s: string) => s.replace(/[  ]/g, " ");
-const money = (cents: number) => plain(formatMoney(cents));
+// Espace insécable fine de Intl (absente des polices embarquées) -> espace insécable
+// normale : « 1 234,56 € » et « TVA : » ne se coupent pas en fin de ligne.
+const plain = (s: string) => s.replace(/\u202f/g, "\u00a0");
 
 const s = StyleSheet.create({
   page: { paddingTop: 48, paddingBottom: 64, paddingHorizontal: 48, fontFamily: "Source Sans 3", fontSize: 10, color: INK, lineHeight: 1.4 },
@@ -60,12 +63,20 @@ const s = StyleSheet.create({
   footer: { position: "absolute", left: 48, right: 48, bottom: 32, color: MUTED, fontSize: 8, textAlign: "center" },
 });
 
-function InvoiceDocument({ data }: { data: FullInvoice }) {
+// Le PDF est rédigé dans la langue choisie par le freelance quand il le télécharge ou l'envoie.
+function InvoiceDocument({ data, locale }: { data: FullInvoice; locale: Locale }) {
   const { invoice, summary, items, client, company, logo } = data;
   const rate = summary.vat_rate;
+  const t = getDictionary(locale).documents.pdf;
+  const money = (cents: number) => plain(formatMoney(cents, locale));
+  const date = (iso: string) => plain(formatDate(iso, locale));
 
   return (
-    <Document title={`Invoice ${invoice.number}`} author={company.company_name || company.email} language="en">
+    <Document
+      title={fmt(t.docTitle, { number: invoice.number })}
+      author={company.company_name || company.email}
+      language={locale}
+    >
       <Page size="A4" style={s.page}>
         <View style={s.header}>
           <View style={s.company}>
@@ -74,42 +85,42 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
             <Text style={s.companyName}>{company.company_name || company.email}</Text>
             {company.address ? <Text style={s.soft}>{company.address}</Text> : null}
             {company.email ? <Text style={s.soft}>{company.email}</Text> : null}
-            {company.vat_number ? <Text style={s.soft}>VAT no. {company.vat_number}</Text> : null}
+            {company.vat_number ? <Text style={s.soft}>{plain(fmt(t.vatNo, { number: company.vat_number }))}</Text> : null}
           </View>
           <View style={s.titleBlock}>
-            <Text style={s.title}>Invoice</Text>
+            <Text style={s.title}>{t.title}</Text>
             <View style={s.meta}>
-              <Text style={s.metaLabel}>Number</Text>
+              <Text style={s.metaLabel}>{t.number}</Text>
               <Text style={[s.metaValue, s.strong]}>{invoice.number}</Text>
             </View>
             <View style={s.meta}>
-              <Text style={s.metaLabel}>Date</Text>
-              <Text style={s.metaValue}>{formatDate(invoice.issue_date)}</Text>
+              <Text style={s.metaLabel}>{t.date}</Text>
+              <Text style={s.metaValue}>{date(invoice.issue_date)}</Text>
             </View>
             <View style={s.meta}>
-              <Text style={s.metaLabel}>Due date</Text>
-              <Text style={s.metaValue}>{formatDate(invoice.due_date)}</Text>
+              <Text style={s.metaLabel}>{t.dueDate}</Text>
+              <Text style={s.metaValue}>{date(invoice.due_date)}</Text>
             </View>
           </View>
         </View>
 
         <View style={s.billTo}>
-          <Text style={s.label}>Bill to</Text>
+          <Text style={s.label}>{t.billTo}</Text>
           <Text style={s.strong}>{client.name}</Text>
           {client.address ? <Text style={s.soft}>{client.address}</Text> : null}
-          {client.vat_number ? <Text style={s.soft}>VAT no. {client.vat_number}</Text> : null}
+          {client.vat_number ? <Text style={s.soft}>{plain(fmt(t.vatNo, { number: client.vat_number }))}</Text> : null}
         </View>
 
         <View style={s.tableHead} fixed>
-          <Text style={s.cDesc}>Description</Text>
-          <Text style={s.cQty}>Qty</Text>
-          <Text style={s.cPrice}>Unit price</Text>
-          <Text style={s.cTotal}>Amount</Text>
+          <Text style={s.cDesc}>{t.description}</Text>
+          <Text style={s.cQty}>{t.qty}</Text>
+          <Text style={s.cPrice}>{t.unitPrice}</Text>
+          <Text style={s.cTotal}>{t.amount}</Text>
         </View>
         {items.map((it) => (
           <View key={it.id} style={s.row} wrap={false}>
             <Text style={s.cDesc}>{it.description}</Text>
-            <Text style={s.cQty}>{plain(formatNumber(it.quantity))}</Text>
+            <Text style={s.cQty}>{plain(formatNumber(it.quantity, locale))}</Text>
             <Text style={s.cPrice}>{money(it.unit_price_cents)}</Text>
             <Text style={s.cTotal}>
               {money(lineTotalCents({ quantity: it.quantity, unitPriceCents: it.unit_price_cents }))}
@@ -123,34 +134,33 @@ function InvoiceDocument({ data }: { data: FullInvoice }) {
           </View>
           <View style={s.totals}>
             <View style={s.totalLine}>
-              <Text>Subtotal</Text>
+              <Text>{t.subtotal}</Text>
               <Text>{money(summary.subtotal_cents)}</Text>
             </View>
             <View style={[s.totalLine, s.soft]}>
-              <Text>{rate === 0 ? "VAT" : `VAT ${plain(formatRate(rate))}`}</Text>
+              <Text>{rate === 0 ? t.vat : plain(fmt(t.vatRate, { rate: formatRate(rate, locale) }))}</Text>
               <Text>{money(summary.vat_cents)}</Text>
             </View>
             <View style={s.grandTotal}>
-              <Text>Total</Text>
+              <Text>{t.total}</Text>
               <Text>{money(summary.total_cents)}</Text>
             </View>
-            {rate === 0 ? <Text style={[s.muted, { marginTop: 6 }]}>{VAT_EXEMPTION_NOTE}</Text> : null}
+            {rate === 0 ? <Text style={[s.muted, { marginTop: 6 }]}>{t.vatExempt}</Text> : null}
           </View>
         </View>
 
         <Text style={s.footer} fixed>
-          Payment due by {formatDate(invoice.due_date)}. Late payments may incur statutory interest and a fixed
-          €40 recovery fee (EU Late Payment Directive 2011/7/EU). No discount for early payment.
+          {plain(fmt(t.footer, { date: formatDate(invoice.due_date, locale) }))}
         </Text>
       </Page>
     </Document>
   );
 }
 
-export function renderInvoicePdf(data: FullInvoice): Promise<Buffer> {
-  return renderToBuffer(<InvoiceDocument data={data} />);
+export function renderInvoicePdf(data: FullInvoice, locale: Locale): Promise<Buffer> {
+  return renderToBuffer(<InvoiceDocument data={data} locale={locale} />);
 }
 
-export function invoiceFileName(number: string) {
-  return `invoice-${number}.pdf`;
+export function invoiceFileName(number: string, locale: Locale) {
+  return fmt(getDictionary(locale).documents.pdf.fileName, { number });
 }

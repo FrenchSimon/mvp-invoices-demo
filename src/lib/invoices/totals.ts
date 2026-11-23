@@ -14,5 +14,3 @@ export function computeTotals(lines: LineAmounts[], vatRate: number) {
 
 // Taux proposés dans l'éditeur. 0 % : micro-entrepreneur en franchise de TVA.
 export const VAT_RATES = [20, 10, 5.5, 2.1, 0] as const;
-
-export const VAT_EXEMPTION_NOTE = "VAT not applicable.";

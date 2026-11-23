@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Polices du PDF des factures, lues sur le disque par la route /invoices/[id]/pdf.
   outputFileTracingIncludes: {
-    "/invoices/[id]/pdf": ["./src/lib/pdf/fonts/*.woff"],
+    "/[lang]/invoices/[id]/pdf": ["./src/lib/pdf/fonts/*.woff"],
   },
   // En-têtes de sécurité sur toutes les pages (audit du 2026-11-16) :
   // le site ne s'affiche pas dans le cadre d'un autre site (clickjacking), le navigateur

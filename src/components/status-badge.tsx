@@ -1,14 +1,10 @@
+"use client";
+
+import { useI18n } from "@/i18n/client";
 import type { DisplayStatus } from "@/lib/invoices/types";
 import { cn } from "@/lib/utils";
 
 // Statut d'une facture : toujours un libellé, jamais la couleur seule (DESIGN.md).
-export const STATUS_LABELS: Record<DisplayStatus, string> = {
-  draft: "Draft",
-  sent: "Sent",
-  paid: "Paid",
-  overdue: "Overdue",
-};
-
 const STATUS_CLASSES: Record<DisplayStatus, string> = {
   draft: "bg-status-draft text-status-draft-foreground",
   sent: "bg-status-sent text-status-sent-foreground",
@@ -17,6 +13,7 @@ const STATUS_CLASSES: Record<DisplayStatus, string> = {
 };
 
 export function StatusBadge({ status, className }: { status: DisplayStatus; className?: string }) {
+  const { t } = useI18n();
   return (
     <span
       className={cn(
@@ -25,7 +22,7 @@ export function StatusBadge({ status, className }: { status: DisplayStatus; clas
         className,
       )}
     >
-      {STATUS_LABELS[status]}
+      {t.common.status[status]}
     </span>
   );
 }

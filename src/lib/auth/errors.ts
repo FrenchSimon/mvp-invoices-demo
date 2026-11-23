@@ -1,24 +1,26 @@
 import type { AuthError } from "@supabase/supabase-js";
+import type { Dictionary } from "@/i18n/dictionaries";
 
-// Messages en anglais pour les erreurs Supabase les plus courantes.
-export function authErrorMessage(error: AuthError): string {
+// Messages traduits pour les erreurs Supabase les plus courantes.
+export function authErrorMessage(error: AuthError, t: Dictionary): string {
+  const e = t.auth.errors;
   switch (error.code) {
     case "invalid_credentials":
-      return "Incorrect email or password.";
+      return e.invalidCredentials;
     case "email_not_confirmed":
-      return "Please confirm your email first: open the link we sent you.";
+      return e.emailNotConfirmed;
     case "weak_password":
-      return "Password too weak. Use at least 8 characters.";
+      return e.weakPassword;
     case "same_password":
-      return "Choose a password different from your old one.";
+      return e.samePassword;
     case "email_address_invalid":
-      return "Invalid email address.";
+      return e.invalidEmail;
     case "over_email_send_rate_limit":
     case "over_request_rate_limit":
-      return "Too many attempts. Try again in a few minutes.";
+      return e.rateLimit;
     case "signup_disabled":
-      return "Sign-ups are closed for now.";
+      return e.signupDisabled;
     default:
-      return "Something went wrong. Try again in a moment.";
+      return e.generic;
   }
 }

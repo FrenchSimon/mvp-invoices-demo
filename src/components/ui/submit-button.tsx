@@ -1,4 +1,7 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 
 // Bouton d'envoi d'un formulaire. Par défaut : principal (terracotta plein, un seul par écran).
@@ -13,6 +16,7 @@ export function SubmitButton({
   variant?: "default" | "outline";
   className?: string;
 }) {
+  const { t } = useI18n();
   return (
     <Button
       type="submit"
@@ -26,7 +30,7 @@ export function SubmitButton({
         className,
       )}
     >
-      {pending ? "One moment…" : children}
+      {pending ? t.common.pending : children}
     </Button>
   );
 }
