@@ -24,6 +24,8 @@ export const settings = {
   },
   account: "Account: {account} · {plan} plan ·",
   demoAccount: "demo workspace",
+  planFree: "Free",
+  planPro: "Pro",
   manage: "Manage my subscription",
   upgrade: "Upgrade to Pro",
   messages: {

@@ -15,7 +15,7 @@ export const landing: Dictionary["landing"] = {
   noCard: "Gratuit, sans carte bancaire",
   plansHeading: "Deux formules, sans surprise",
   free: {
-    name: "Gratuit",
+    name: "Gratuite",
     price: "0 €",
     features: [
       "{count} factures par mois",
@@ -28,7 +28,7 @@ export const landing: Dictionary["landing"] = {
     name: "Pro",
     price: "9 €",
     per: "par mois",
-    features: ["Factures illimitées", "Votre logo sur les factures", "Tout ce qu'offre la formule Gratuit"],
+    features: ["Factures illimitées", "Votre logo sur les factures", "Tout ce qu'offre la formule gratuite"],
     cta: "Passer à Pro",
   },
   sample: {

@@ -13,7 +13,7 @@ export const admin: Dictionary["admin"] = {
   noEmail: "(sans e-mail)",
   noCompany: "Sans nom d'entreprise",
   adminRole: " · admin",
-  free: "Gratuit",
+  free: "Gratuite",
   pro: "Pro",
   invoiceCount: { one: "{count} facture", other: "{count} factures" },
   thisMonth: "{count} ce mois-ci",

@@ -4,7 +4,10 @@ export const dashboard: Dictionary["dashboard"] = {
   title: "Tableau de bord",
   loadError: "Le tableau de bord n'a pas pu être chargé.",
   proPlan: "Formule Pro · factures illimitées",
-  freePlan: "Formule Gratuit · {used} sur {limit}\u00a0factures utilisées ce mois-ci",
+  freePlan: {
+    one: "Formule gratuite · {count}\u00a0facture sur {limit} ce mois-ci",
+    other: "Formule gratuite · {count}\u00a0factures sur {limit} ce mois-ci",
+  },
   addDetailsBefore: "Avant votre première facture,",
   addDetailsLink: "renseignez les coordonnées de votre entreprise",
   addDetailsAfter: ".",

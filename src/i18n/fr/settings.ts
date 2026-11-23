@@ -25,6 +25,8 @@ export const settings: Dictionary["settings"] = {
   },
   account: "Compte : {account} · formule {plan} ·",
   demoAccount: "espace de démo",
+  planFree: "gratuite",
+  planPro: "Pro",
   manage: "Gérer mon abonnement",
   upgrade: "Passer à Pro",
   messages: {

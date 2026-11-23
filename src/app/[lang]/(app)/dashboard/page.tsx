@@ -74,8 +74,7 @@ async function Dashboard() {
           <p className="mt-1 text-muted-foreground">
             {profile?.plan === "pro"
               ? d.proPlan
-              : fmt(d.freePlan, {
-                  used: Math.min(createdThisMonth ?? 0, FREE_MONTHLY_INVOICES),
+              : fmt(plural(locale, Math.min(createdThisMonth ?? 0, FREE_MONTHLY_INVOICES), d.freePlan), {
                   limit: FREE_MONTHLY_INVOICES,
                 })}
           </p>

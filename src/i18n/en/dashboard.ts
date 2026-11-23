@@ -3,7 +3,10 @@ export const dashboard = {
   title: "Dashboard",
   loadError: "The dashboard couldn't be loaded.",
   proPlan: "Pro plan · unlimited invoices",
-  freePlan: "Free plan · {used} of {limit} invoices used this month",
+  freePlan: {
+    one: "Free plan · {count} of {limit} invoices used this month",
+    other: "Free plan · {count} of {limit} invoices used this month",
+  },
   addDetailsBefore: "Before your first invoice,",
   addDetailsLink: "add your business details",
   addDetailsAfter: ".",

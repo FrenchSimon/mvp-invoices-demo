@@ -4,7 +4,10 @@ export const pro = {
   yourPro: "Your Pro plan",
   upgrade: "Upgrade to Pro",
   proIntro: "Unlimited invoices and your logo on your PDFs.",
-  freeIntro: "This month: {used} of {limit} invoices used on the Free plan.",
+  freeIntro: {
+    one: "This month: {count} of {limit} invoices used on the Free plan.",
+    other: "This month: {count} of {limit} invoices used on the Free plan.",
+  },
   justPaid: "Payment received: you're on Pro. Thank you!",
   confirming: "Your payment is being confirmed. Reload the page in a moment.",
   feature: "Feature",

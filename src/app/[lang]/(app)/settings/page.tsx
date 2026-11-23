@@ -69,7 +69,7 @@ async function Settings() {
         )}
       </Sheet>
       <p className="mt-6 text-sm text-muted-foreground">
-        {fmt(s.account, { account: demo ? s.demoAccount : (user.email ?? ""), plan: isPro ? t.pro.proName : t.pro.free })}{" "}
+        {fmt(s.account, { account: demo ? s.demoAccount : (user.email ?? ""), plan: isPro ? s.planPro : s.planFree })}{" "}
         <Link href="/pro">{isPro ? s.manage : s.upgrade}</Link>
       </p>
     </>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoadingLine, PageHeader } from "@/components/page-header";
-import { fmt } from "@/i18n/message";
+import { fmt, plural } from "@/i18n/message";
 import { getI18n } from "@/i18n/server";
 import { FREE_MONTHLY_INVOICES, getPlanUsage } from "@/lib/plan";
 import { syncPlanFromStripe } from "@/lib/stripe/server";
@@ -25,7 +25,7 @@ export default function ProPage({ searchParams }: PageProps<"/[lang]/pro">) {
 
 async function Pro({ searchParams }: { searchParams: PageProps<"/[lang]/pro">["searchParams"] }) {
   const { payment } = await searchParams;
-  const [{ supabase, user }, { t }] = await Promise.all([requireUser(), getI18n()]);
+  const [{ supabase, user }, { locale, t }] = await Promise.all([requireUser(), getI18n()]);
   const p = t.pro;
   // Ce que chaque formule permet (checklist, points 8 à 10).
   const rows = [
@@ -59,8 +59,7 @@ async function Pro({ searchParams }: { searchParams: PageProps<"/[lang]/pro">["s
         intro={
           isPro
             ? p.proIntro
-            : fmt(p.freeIntro, {
-                used: Math.min(usage.usedThisMonth, FREE_MONTHLY_INVOICES),
+            : fmt(plural(locale, Math.min(usage.usedThisMonth, FREE_MONTHLY_INVOICES), p.freeIntro), {
                 limit: FREE_MONTHLY_INVOICES,
               })
         }
