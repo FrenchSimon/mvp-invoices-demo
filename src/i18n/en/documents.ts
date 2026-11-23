@@ -1,0 +1,38 @@
+// PDF de la facture et email envoyé au client.
+export const documents = {
+  pdf: {
+    title: "Invoice",
+    docTitle: "Invoice {number}",
+    number: "Number",
+    date: "Date",
+    dueDate: "Due date",
+    billTo: "Bill to",
+    vatNo: "VAT no. {number}",
+    description: "Description",
+    qty: "Qty",
+    unitPrice: "Unit price",
+    amount: "Amount",
+    subtotal: "Subtotal",
+    vat: "VAT",
+    vatRate: "VAT {rate}",
+    total: "Total",
+    vatExempt: "VAT not applicable.",
+    footer:
+      "Payment due by {date}. Late payments may incur statutory interest and a fixed €40 recovery fee (EU Late Payment Directive 2011/7/EU). No discount for early payment.",
+    fileName: "invoice-{number}.pdf",
+    loginRequired: "Login required.",
+    notFound: "Invoice not found.",
+  },
+  email: {
+    yourSupplier: "Your supplier",
+    subject: "Invoice {number} – {from}",
+    hello: "Hello,",
+    body: "Please find attached invoice {number} for {amount}, due by {date}.",
+    thanks: "Many thanks,",
+    footer: "Sent with {app}.",
+    notEnabled: "Sending to this address isn't enabled yet: a sending domain must be verified first.",
+    rateLimit: "Too many emails at once. Try again in a minute.",
+    failed: "The email couldn't be sent. Try again in a moment.",
+    notConfigured: "Email sending isn't configured on this server.",
+  },
+};

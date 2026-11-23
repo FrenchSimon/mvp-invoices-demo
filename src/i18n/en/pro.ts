@@ -1,0 +1,37 @@
+// Formule Pro (paiement Stripe).
+export const pro = {
+  title: "Pro plan",
+  yourPro: "Your Pro plan",
+  upgrade: "Upgrade to Pro",
+  proIntro: "Unlimited invoices and your logo on your PDFs.",
+  freeIntro: "This month: {used} of {limit} invoices used on the Free plan.",
+  justPaid: "Payment received: you're on Pro. Thank you!",
+  confirming: "Your payment is being confirmed. Reload the page in a moment.",
+  feature: "Feature",
+  free: "Free",
+  proName: "Pro",
+  yours: " (yours)",
+  rows: {
+    invoices: "Invoices per month",
+    sending: "PDF and email sending",
+    logo: "Your logo on the PDF",
+    price: "Price",
+  },
+  values: {
+    unlimited: "Unlimited",
+    yes: "Yes",
+    no: "No",
+    free: "Free",
+    proPrice: "€9 per month",
+  },
+  manage: "Manage my subscription",
+  manageNote: "Change your card, see your receipts or cancel: it all happens on Stripe's secure page.",
+  checkoutNote: "Card payment on Stripe's secure page. No commitment: cancel anytime.",
+  demoBefore: "Demo: Stripe runs in test mode, no real payment is taken. Use the card",
+  demoAfter: ", any future date and any 3-digit code.",
+  errors: {
+    checkout: "The payment couldn't start. Try again in a moment.",
+    noSubscription: "No subscription to manage.",
+    portal: "Subscription management isn't available right now. Try again later.",
+  },
+};
