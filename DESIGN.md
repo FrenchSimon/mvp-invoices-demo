@@ -37,6 +37,7 @@ Statuts, toujours avec leur libellé (jamais la couleur seule) :
 - Texte, tableaux, boutons : Source Sans 3, 16 px (17 px sur l'accueil).
 - Chiffres alignés dans les tableaux (`tabular-nums`).
 - Site en anglais (depuis le 2026-11-16) : montants au format €1,234.56, dates « 4 Nov 2026 », « VAT » pour la TVA. Nom : Billnote.
+- Version française (depuis le 2026-11-23), au choix dans la barre de démo : 1 234,56 €, « 4 nov. 2026 », « TVA », « Total HT / TTC », vouvoiement, espace insécable avant « : ; ? ! ». Textes dans `src/i18n/` (anglais = source, français typé dessus).
 
 ## Formes et densité
 
@@ -46,6 +47,8 @@ Statuts, toujours avec leur libellé (jamais la couleur seule) :
 - Largeur de contenu : 1120 px max, marges de 32 px (16 px sur mobile).
 
 ## Navigation
+
+- Barre « Portfolio demo » au-dessus de chaque page, comme Kinora (fond `--demo` #1E2B24, texte `--demo-foreground` #F3EEE4, discret `--demo-muted` #C9C2B3). Ligne 1 : « Portfolio demo · sample data » à gauche, choix FR | EN à droite (langue courante en gras soulignée). Ligne 2 : « Read the code ↗ » (masquée si `SOURCE_CODE` est vide).
 
 - Barre du haut : logo B + nom de l'app (Billnote) à gauche, onglets texte à droite (Dashboard, Invoices, Clients, Settings). Onglet actif : texte en gras + soulignement terracotta de 2 px.
 - Admin : onglet en plus, visible seulement pour le rôle admin.

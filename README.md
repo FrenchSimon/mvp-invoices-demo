@@ -4,6 +4,8 @@ Simple invoicing for freelancers: add your clients, create an invoice in under a
 
 **Live demo: https://mvp-invoices-demo.vercel.app** — click **Try the demo**. No sign-up needed: you get your own workspace filled with sample data, deleted after 24 hours. No email is sent, and payments use Stripe test mode (card `4242 4242 4242 4242`, any future date, any CVC).
 
+Also in French: https://mvp-invoices-demo.vercel.app/?lang=fr (or switch with **FR | EN** in the top bar).
+
 ![Billnote dashboard in the demo workspace](docs/dashboard.jpg)
 
 ## Features
@@ -18,6 +20,7 @@ Simple invoicing for freelancers: add your clients, create an invoice in under a
 - Free plan limited to 3 invoices a month, Pro plan at €9/month through Stripe Checkout
 - Admin page listing sign-ups, visible to admin accounts only
 - One-click demo workspace, with no account
+- English and French, switched from the top bar: screens, messages, PDF and email
 
 ## Stack
 
@@ -37,7 +40,7 @@ Next.js 16 (App Router, Server Actions) · React 19 · TypeScript · Tailwind CS
 
 ## Tests
 
-The database rules are tested against the real migrations, run in [PGlite](https://pglite.dev) (Postgres in WebAssembly, no Docker): 56 checks covering data isolation between freelancers, admin access, invoice locking, numbering, the free plan limit, logo storage and the demo workspace.
+The database rules are tested against the real migrations, run in [PGlite](https://pglite.dev) (Postgres in WebAssembly, no Docker): 59 checks covering data isolation between freelancers, admin access, invoice locking, numbering, the free plan limit, logo storage and the demo workspace (in English and French).
 
 ```bash
 npm run test:db     # database rules
